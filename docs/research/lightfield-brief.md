@@ -1,0 +1,78 @@
+# Lightfield (lightfield.app) — research brief
+
+*Researched 2026-07-14. Site fetched live (WebFetch + Playwright screenshot/computed-style inspection); press, analyst, and review sources cited inline.*
+
+> **Premise correction, up front:** lightfield.app is **not** a wealth-management / financial-advisor CRM. It is an **AI-native sales CRM for high-growth tech companies** (founder-led sales → early GTM teams), built by the founders of Tome. Nothing on the site, in press, or in analyst coverage targets RIAs, wirehouse advisors, or family offices — the closest touchpoint is HIPAA-ready support on the top tier and vertical-SaaS ambitions (healthcare, solar, agriculture) noted by Contrary Research. The advisor-CRM space (Redtail, Wealthbox, Salesforce FSC, AdvisorEngine) is a different market Lightfield does not appear in ([XYPN 2026 CRM guide](https://www.xyplanningnetwork.com/advisor-blog/best-crm-software-for-financial-advisors-2026-guide), [Quickbase roundup](https://www.quickbase.com/blog/best-crm-financial-advisors-wealth-management)). If the interest was "AI-native CRM design/positioning to learn from," this brief still delivers; if a wealth-management CRM named Lightfield was intended, it's a different (or nonexistent) company.
+
+---
+
+## 1. Product
+
+**One-liner (their words):** "Lightfield is an AI-native CRM that does the work for you. You sell, and agents do the rest." ([lightfield.app](https://lightfield.app/))
+
+**What "AI-native" means in their implementation** — the CRM *builds and maintains itself* from raw customer communication instead of asking humans to log data:
+
+- **Automatic data capture / ingestion.** Connects email, calendar, Slack, meetings (native call recorder + transcription), support tickets, and product analytics; autonomously creates accounts, contacts, and opportunities and keeps them current after each interaction ([Contrary Research](https://research.contrary.com/company/lightfield), [SaaStr](https://www.saastr.com/saastr-ai-app-of-the-week-lightfield-the-ai-native-crm-that-killed-tomes-25-million-users-to-build-something-better/)).
+- **Meeting prep, capture, and summarization.** Built-in meeting recorder; account summaries act as dynamic intelligence hubs aggregating history and context ([lightfield.app](https://lightfield.app/), [Contrary](https://research.contrary.com/company/lightfield)).
+- **Agentic write-actions with human approval.** Analyzes conversations and *suggests* CRM record updates for approval; drafts follow-up emails referencing meeting details; revives stale deals ("revived 40+ stalled opportunities in a single two-hour session" per a user anecdote on [SaaStr](https://www.saastr.com/saastr-ai-app-of-the-week-lightfield-the-ai-native-crm-that-killed-tomes-25-million-users-to-build-something-better/)). Notably similar to Tada's "never auto-execute" gating.
+- **Natural-language BI queries with citations.** "Which opportunities would move faster with Slack integration?" → answers cited back to original conversations ([Contrary](https://research.contrary.com/company/lightfield)).
+- **Outbound/pipeline-generation agents** (top tier): agentic pipeline generation, automated sequencing, personalized bulk email at scale ([lightfield.app/pricing](https://lightfield.app/pricing)).
+- **Flexible/schema-less data model.** Customizable schema that *backfills historical records* when the schema changes; natural-language agent builder for automations (Pro+) ([Contrary](https://research.contrary.com/company/lightfield), [pricing](https://lightfield.app/pricing)).
+- **Integrations:** Gmail/Outlook, calendar, Slack (Pro+), LinkedIn (Growth tier), open API + two-way sync; a "one-hour HubSpot migration agent" launched as a wedge against incumbents ([Yahoo Finance / GlobeNewswire](https://finance.yahoo.com/sectors/technology/articles/lightfield-launches-one-hour-crm-172700342.html)). No custodian/financial-data integrations — again, not an advisor product.
+- **Trust posture:** SOC 2 Type II, HIPAA, ISO 27001 badges on the homepage ([lightfield.app](https://lightfield.app/)).
+
+Featured capability list on the homepage (verbatim themes): account prioritization by fit/timing/connection strength; meeting prep + capture + summarization; BI queries across conversations; personalized bulk email; product-feedback insights for engineering; bulk pipeline editing; stale-deal revival; data enrichment.
+
+## 2. Positioning & messaging
+
+- **Headline (H1, verbatim):** "CRM that remembers everything and does the work for you."
+- **Category tag:** "AI-native CRM" (page title: "Lightfield — AI-native CRM").
+- **Villain copy (verbatim):** "Traditional CRMs expect you to log notes, update fields, and draft follow-ups. They're built to record work, drown you in admin, and put you out of touch with what's actually happening in your company."
+- **Promise (verbatim):** "You sell, and agents do the rest."
+- **Audience line (verbatim):** "Built for high growth companies." CTAs: "Try for free" / "Book a demo"; closer: "Join thousands of companies using Lightfield."
+- **Target:** venture-backed tech companies in the founder-led-sales → first-GTM-hires transition (5–20 people, ~$1M–$10M ARR), *before* they adopt Salesforce/HubSpot; key persona is "a CEO doing founder sales who wants to put off hiring their first salesperson a little longer" ([Contrary](https://research.contrary.com/company/lightfield), [SaaStr](https://www.saastr.com/saastr-ai-app-of-the-week-lightfield-the-ai-native-crm-that-killed-tomes-25-million-users-to-build-something-better/)).
+- **Social proof:** testimonial carousel from founders/execs at 14.ai, ScaleAgentic, Underflow, CashQ, Reeva; public changelog and news feed on the homepage signal shipping velocity ([lightfield.app](https://lightfield.app/)).
+- Founder framing of the pivot: build the "context layer" for customer relationships first — which turned out to mean building a CRM ([Keith Peiris on LinkedIn](https://www.linkedin.com/posts/keithpeiris_after-a-year-in-stealth-were-excited-to-activity-7394781278127968257-3W0N), ["Why we built Lightfield"](https://lightfield.app/blog/why-we-built-lightfield)).
+
+## 3. Design language (inspected live via Playwright, 2026-07-14)
+
+**Overall: radical monochrome minimalism.** Almost aggressively neutral — the anti-brand of a tool that wants to feel like infrastructure.
+
+- **Palette:** near-white warm-gray page background `lab(96.5 0 0)` ≈ `#f2f1f0`; *all* text is black at opacity steps — body `rgba(0,0,0,0.6)`, emphasis `0.75–0.85`, hairlines `0.12`, washes `0.02–0.04`. Effectively **no accent color anywhere** (a single muted slate-blue `lab(75 -7.8 -38.4)` ≈ #79b7f0-ish appears once, likely a link/logo pixel). One dark full-bleed video band mid-page; everything else is light. Light mode only.
+- **Typography:** a single typeface sitewide — **Untitled Sans** (Klim Type Foundry's deliberately "anonymous" grotesque; served as `untitledSans`). H1 is small and quiet: 28px, **weight 400** (not bold), tight `-0.84px` letter-spacing, near-black at 75% opacity. No serif, no display font, no script. Hierarchy is carried by opacity and spacing, not size or weight.
+- **Layout:** huge whitespace; narrow centered text column; hero is a **3D-tilted collage of real product UI** (a chat prompt "write follow-up emails to prospects who went dark after demos…" flowing into agent steps "Retrieved… Analyzed… Emails drafted" and a CRM account view for "Relay Labs") receding into a soft gradient. Sections: villain copy → product-context section with wireframe-style line diagrams → capability grid ("What you can do with Lightfield") → testimonial cards with small portrait photos → trust badges → changelog list → news → footer. Long single page, low chrome.
+- **Components:** small pill/rounded-rect buttons (6px radius), translucent white button fills (`oklab(1 0 0 / 0.8)`), hairline borders, tiny caption-grade labels. The logo is a small "✂"-like glyph mark plus lowercase-ish wordmark.
+- **Tone:** cool, technical, restrained, "serious infrastructure" — closer to Linear/Vercel than to warm consumer SaaS. Zero illustration, zero color-coded marketing gradients; the *product screenshots are the imagery*. Screenshots saved to scratchpad (`lightfield-hero.jpeg`, `lightfield-full.jpeg`).
+- **Contrast with Tada's brand:** Tada is warm cream + rust accent + EB Garamond serif display — almost the exact opposite pole. Lightfield proves the "no accent, one quiet sans, product-as-hero" direction; it is *not* a palette to copy if warmth is the differentiator.
+
+## 4. Company
+
+- **Founders:** **Keith Peiris (CEO)** — coding from age 9, nanotech engineering at Waterloo; ~a decade at Meta (product across Facebook/Instagram/Oculus; scaled Instagram Direct to 500M MAU); later Head of Product at Glossier and Citizen. **Henri Liriani (President/CPO)** — 6 years at Meta; Head of Product for Messenger Human Interfaces; led Project Lightspeed (Messenger codebase cut 84%). ([Contrary Research](https://research.contrary.com/company/lightfield), [Keith Peiris LinkedIn](https://www.linkedin.com/in/keithpeiris)). Some profiles also list Pete Nichols among founding team ([Tracxn](https://tracxn.com/d/companies/lightfield/__R6sg_Tio14bti4FbRIy8bvlIHHG1A7C39R_tvo8XAyk)).
+- **History / pivot:** founded Dec 2020 as (Magical) Tome, an AI presentation tool — fastest productivity app to 1M users (4 months), 20–25M users. Enterprise users cared more about customer-data organization than slide generation; team cut from ~70 to ~7 (31% layoff plus attrition), slides product wound down mid-2025, rebuilt as Lightfield ([VentureBeat](https://venturebeat.com/ai/tomes-founders-ditch-viral-presentation-app-with-20m-users-to-build-ai), [Contrary](https://research.contrary.com/company/lightfield)).
+- **Funding (raised as Tome; carried into Lightfield):** $6.3M seed (2020, Greylock / Reid Hoffman) → $26M Series A (Sept 2021, $175M valuation) → $43M Series B (Feb 2023, **$300M valuation**, Lightspeed lead; Greylock, Coatue, Audacious, Neo, 8VC, GV; angels incl. Eric Schmidt, Emad Mostaque, David Luan, Bipul Sinha). **Total $81M.** ([Contrary](https://research.contrary.com/company/lightfield), [Crunchbase](https://www.crunchbase.com/organization/lightfield-cd67), [Lightspeed](https://lsvp.com/company/lightfield/)). Coatue's Dan Rose publicly backed the pivot ([SaaStr](https://www.saastr.com/saastr-ai-app-of-the-week-lightfield-the-ai-native-crm-that-killed-tomes-25-million-users-to-build-something-better/)).
+- **Team size:** ~23 employees (2025), listed 11–50 on job boards ([Wellfound](https://wellfound.com/company/lightfield-1/jobs)).
+- **Launch & traction:** public launch **November 2025** after ~a year in stealth ([Peiris LinkedIn](https://www.linkedin.com/posts/keithpeiris_after-a-year-in-stealth-were-excited-to-activity-7394781278127968257-3W0N)); Product Hunt launch ~Dec 2025 ([Product Hunt](https://www.producthunt.com/products/lightfield)). ~**2,500 companies in the first three months**, incl. 100+ recent-YC startups; power users hit 400+ agent interactions/week; automations rolled out in open beta by June 2026 ([SF Examiner](https://www.sfexaminer.com/marketplace/lightfield-among-the-best-ai-crm-tools-for-startups/article_df388545-4020-4977-a4bc-5a7271c5369d.html), [ICON review](https://iconpolls.com/blogs/lightfield-review-2026-ai-crm-app-login-findings-software-user-experience-and-faqs)).
+
+## 5. Pricing (public, from [lightfield.app/pricing](https://lightfield.app/pricing), fetched 2026-07-14)
+
+| Tier | Price | Positioning | Limits / notables |
+|---|---|---|---|
+| **Starter** | **$89/user/mo** (monthly) | "A modern CRM for companies just getting started" | ≤3 seats, ≤30k records, call recording, enrichment, agent queries/actions; Slack integration not included; free trial |
+| **Pro** | **$249/user/mo** (annual) | "A platform to automate GTM workflows with agents" | Unlimited seats, ≤1M records, Slack, custom objects, NL agent builder, advanced automations, dashboards, SSO, dedicated CSM, migration services |
+| **Growth** | **$3,000+/workspace/mo** (annual) | "Embedded experts to scale your company with you" | Agentic pipeline generation, automated sequencing, LinkedIn integration, HIPAA-ready, forward-deployed team |
+
+Notable: pricing has moved sharply upmarket — early-2026 reviews cite $36 (Startup) / $99 (Pro) per user ([folk review](https://www.folk.app/articles/lightfield-crm-review), [SaaStr](https://www.saastr.com/saastr-ai-app-of-the-week-lightfield-the-ai-native-crm-that-killed-tomes-25-million-users-to-build-something-better/)), and the original model was $40/seller + usage-based AI consumption ([Contrary](https://research.contrary.com/company/lightfield)). Roughly a 2.5x price increase within ~6 months of launch.
+
+## 6. Weaknesses / gaps a new entrant could exploit
+
+1. **Steep, fast-moving pricing.** $89/user entry (was $36) with a 3-seat cap, and the real agentic value (outbound agents, sequencing, LinkedIn) gated behind $249/user or $3k+/mo tiers. Price-sensitive small teams are being priced out — an opening for a cheaper capture-first product. ([pricing](https://lightfield.app/pricing) vs [folk review](https://www.folk.app/articles/lightfield-crm-review))
+2. **Thin review base / unproven at scale.** "Too new — no customer reviews yet" ([folk](https://www.folk.app/articles/lightfield-crm-review)); third-party comparisons rate its automation and scalability below Pipedrive/Salesflare and cite 1–2 week implementations (low-quality SEO sources — treat directionally: [coffee.ai](https://blog.coffee.ai/lightfield-crm-alternatives-reddit/)).
+3. **Deliberately not for enterprise** (500+ reps) and lacking legacy depth — forecasting, territory management, deal-slippage analytics. Peiris himself calls this "roadmap determinism" tension ([SaaStr](https://www.saastr.com/saastr-ai-app-of-the-week-lightfield-the-ai-native-crm-that-killed-tomes-25-million-users-to-build-something-better/), [Contrary](https://research.contrary.com/company/lightfield)).
+4. **Crowded, well-funded field.** Attio ($116M), Clay ($204M, $3.1B), People.ai, Reevo, Day.ai, plus Salesforce Agentforce and HubSpot AI racing down-market. Contrary flags the risk that best-of-breed point agents fragment the market against Lightfield's consolidation thesis ([Contrary](https://research.contrary.com/company/lightfield)).
+5. **B2B-sales-shaped, not vertical.** The data model is accounts/opportunities/pipeline. Any vertical with different primitives (e.g., an actual advisor CRM: households, custodian feeds, compliance archiving, Riskalyze/eMoney/orchestration integrations) is wide open — Lightfield has none of it, while advisor incumbents (Redtail, Wealthbox) have weak AI. That's the real "wealth-management Lightfield" gap if that's the strategic interest.
+6. **No LinkedIn capture below the $3k tier** and no lightweight prospecting motion — folk explicitly positions against this ([folk](https://www.folk.app/articles/lightfield-crm-review)).
+7. **Brand is cold.** The monochrome, affectless design reads impressive to SF founders but sterile elsewhere; a warm, human brand (Tada's cream/rust/serif) is an easy emotional differentiation against it.
+
+### Relevance notes for Tada
+- Their hero mechanic — agent chat → visible tool steps ("Retrieved / Analyzed / Drafted") → human-approved writes — is exactly Tada's gated-executor pattern, rendered as marketing. Worth studying the hero collage.
+- "Remembers everything and does the work for you" is the CRM-shaped version of "Not to-do. Ta-da." — capture-everything + do-it-for-me is the same story in a different vertical.

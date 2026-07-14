@@ -1,0 +1,1084 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Tada — the AI chief of staff for financial advisors</title>
+<meta name="description" content="AI that remembers every client detail, preps every meeting, and handles the follow-through — always with your approval, on models we run ourselves." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<!-- Free substitutes for lightfield's licensed faces (per teardown notes):
+     untitledSans -> Inter Tight (geometric grotesk, Google Fonts)
+     untitledSerif -> Fraunces (Google Fonts)
+     Inter / DM Mono are already free, used as in the original -->
+<link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@1,9..144,400&amp;family=Inter:wght@400;500;600&amp;family=DM+Mono:wght@400;500&amp;display=swap" rel="stylesheet" />
+
+<style>
+  :root{
+    /* ---- neutrals (lightfield grayscale ramp) ---- */
+    --color-bg-0: #fafafa;
+    --color-bg-1: #f5f5f5;
+    --color-white: #ffffff;
+    --color-z10: #404040;
+    --color-z12: #0d0d0d;
+
+    --content-primary: rgba(0,0,0,0.85);
+    --content-secondary: rgba(0,0,0,0.6);
+    --content-tertiary: rgba(0,0,0,0.45);
+    --content-subtle: rgba(0,0,0,0.4);
+
+    --border-subtle: rgba(0,0,0,0.06);
+    --border-moderate: rgba(0,0,0,0.12);
+
+    /* ---- the one accent ---- */
+    --blue-z5: #80bfff;
+    --blue-z8: #3182d4;
+    --blue-t2: rgba(128,191,255,0.12);
+
+    /* ---- type scale ---- */
+    --text-xxs: 11px;
+    --text-xs: 12px;
+    --text-sm: 13px;
+    --text-base: 15px;
+    --text-lg: 17px;
+    --text-h4: 19px;
+    --text-h3: 21px;
+    --text-h2: 24px;
+    --text-h1: 28px;
+    --text-d4: 32px;
+    --text-4xl: 36px;
+    --text-6xl: 60px;
+
+    /* ---- tunable (tuning-knobs targets) ---- */
+    --wash-top: #c7c9d1;
+    --wash-mid: #ebe8e5;
+    --hero-h1-max: 56px;
+    --card-radius: 14px;
+    --card-shadow-a: 0.18;
+    --tilt: 1;            /* global 3D tilt multiplier */
+    --cardA-rz: -3.5deg;  /* back frame */
+    --cardB-rz: -4.5deg;  /* approval */
+    --cardC-rz: -3deg;    /* profile */
+
+    --radius-sm: 4px;
+    --radius-md: 6px;
+    --radius-lg: 8px;
+    --radius-xl: 10px;
+    --radius-2xl: 12px;
+
+    --font-display: "General Sans", "Inter", -apple-system, sans-serif;
+    --font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --font-mono: "DM Mono", "Geist Mono", ui-monospace, monospace;
+
+    color-scheme: light;
+  }
+
+  @media (prefers-color-scheme: dark){
+    :root{
+      --color-bg-0: #0d0d0d;
+      --color-bg-1: #141414;
+      --color-white: #1a1a1a;
+      --content-primary: rgba(255,255,255,0.88);
+      --content-secondary: rgba(255,255,255,0.62);
+      --content-tertiary: rgba(255,255,255,0.46);
+      --content-subtle: rgba(255,255,255,0.4);
+      --border-subtle: rgba(255,255,255,0.08);
+      --border-moderate: rgba(255,255,255,0.14);
+      color-scheme: dark;
+    }
+  }
+
+  *,*::before,*::after{ box-sizing: border-box; }
+  html{ scroll-behavior: smooth; }
+  body{
+    margin: 0;
+    background: var(--color-bg-0);
+    color: var(--content-primary);
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  img{ max-width: 100%; display: block; }
+
+  .container{
+    max-width: 1180px;
+    margin-inline: auto;
+    padding-inline: clamp(20px, 5vw, 56px);
+  }
+
+  a{ color: inherit; }
+
+  h1,h2,h3,h4{
+    font-family: var(--font-display);
+    font-weight: 500;
+    letter-spacing: -0.025em; /* --tracking-tight */
+    color: var(--content-primary); /* 85% black — never pure #000 */
+    margin: 0;
+  }
+
+  /* ---------------- gradient wash (fixed, behind everything) ---------------- */
+  .bg-wash{
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(to bottom, var(--wash-top) 0%, var(--wash-mid) 46%, var(--color-bg-0) 78%);
+    pointer-events: none;
+  }
+  @media (prefers-color-scheme: dark){
+    .bg-wash{
+      background: linear-gradient(to bottom, #1c1e22 0%, #171513 46%, var(--color-bg-0) 78%);
+    }
+  }
+
+  /* ---------------- nav ---------------- */
+  .navbar-wrap{
+    position: sticky;
+    top: 14px;
+    z-index: 100;
+    display: flex;
+    justify-content: center;
+    padding-inline: clamp(16px, 4vw, 40px);
+  }
+  .navbar{
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    width: min(880px, 100%);
+    border-radius: var(--radius-xl);
+    padding: 8px 10px 8px 16px;
+    border: 1px solid var(--border-subtle);
+  }
+  .navbar::before{
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: rgba(250,250,250,0.6);
+    backdrop-filter: blur(17px);
+    -webkit-backdrop-filter: blur(17px);
+    pointer-events: none;
+    z-index: -1;
+  }
+  @media (prefers-color-scheme: dark){
+    .navbar::before{ background: rgba(13,13,13,0.55); }
+  }
+  .brand{
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    text-decoration: none;
+  }
+  .navlinks{
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .navlinks a{
+    text-decoration: none;
+    font-size: var(--text-sm);
+    color: var(--content-secondary);
+    padding: 6px 10px;
+    border-radius: var(--radius-md);
+    transition: color 200ms, background 200ms;
+  }
+  .navlinks a:hover{ color: var(--content-primary); background: var(--border-subtle); }
+  @media (max-width: 640px){ .navlinks{ display:none; } }
+
+  /* ---------------- buttons ---------------- */
+  .btn{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    height: 36px;
+    padding: 0 16px;
+    border-radius: var(--radius-md);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    text-decoration: none;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: background 200ms, color 200ms, border-color 200ms, transform 200ms;
+    white-space: nowrap;
+  }
+  .btn-primary{
+    background: var(--color-z12);
+    color: #fafafa;
+    border-radius: var(--radius-md); /* 6px — lightfield buttons */
+  }
+  @media (prefers-color-scheme: dark){
+    .btn-primary{ background: #f5f5f5; color: #0d0d0d; }
+  }
+  .btn-primary:hover{ transform: translateY(-1px); }
+  .btn-primary .arrow{ transition: transform 200ms; }
+  .btn-primary:hover .arrow{ transform: translateX(3px); }
+
+  .btn-secondary{
+    background: transparent;
+    color: var(--content-primary);
+    border-color: var(--border-moderate);
+  }
+  .btn-secondary:hover{ background: var(--border-subtle); }
+
+  /* ---------------- hero ---------------- */
+  .hero{
+    padding-top: clamp(56px, 9vw, 96px);
+    padding-bottom: clamp(40px, 6vw, 64px);
+    position: relative;
+  }
+  .hero-copy{
+    max-width: 640px;
+    margin-inline: auto;
+    text-align: center;
+  }
+  .eyebrow{
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--content-tertiary);
+    margin-bottom: 18px;
+  }
+  .hero h1{
+    font-size: clamp(32px, 5vw, var(--hero-h1-max));
+    line-height: 1.12;
+    letter-spacing: -0.02em;
+    /* lightfield's big statement is LIGHT: regular weight, softer-than-body ink */
+    font-weight: 400;
+    color: rgba(0,0,0,0.72);
+  }
+  @media (prefers-color-scheme: dark){
+    .hero h1{ color: rgba(255,255,255,0.78); }
+  }
+  .hero .subline{
+    margin-top: 20px;
+    font-size: var(--text-lg);
+    line-height: 1.6;
+    color: var(--content-secondary);
+    max-width: 560px;
+    margin-inline: auto;
+  }
+  .hero-ctas{
+    margin-top: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  /* ---------------- hero card stack ---------------- */
+  .hero-stack-outer{
+    margin-top: clamp(56px, 8vw, 92px);
+    perspective: 1800px;
+  }
+  .hero-stack{
+    position: relative;
+    width: min(920px, 100%);
+    margin-inline: auto;
+    height: clamp(340px, 46vw, 480px);
+    /* flat: each card tilts independently; z-index controls stacking so the
+       rotated planes can never intersect/clip each other */
+    transform-style: flat;
+  }
+  .hero-card{
+    position: absolute;
+    border-radius: var(--card-radius);
+    background: var(--color-white);
+    border: 1px solid var(--border-subtle);
+    box-shadow:
+      0 25px 50px -12px rgba(0,0,0, var(--card-shadow-a)),
+      0 8px 16px -4px rgba(0,0,0, calc(var(--card-shadow-a) * 0.44));
+    /* Visible by default — the entrance fade is progressive enhancement via
+       .pre-anim (JS-toggled transition), so a webview that suspends animations
+       still renders the cards. */
+    opacity: 1;
+    filter: none;
+    transition: opacity 1.4s cubic-bezier(.16,1,.3,1), filter 1.4s cubic-bezier(.16,1,.3,1);
+  }
+  .hero-card.pre-anim{
+    opacity: 0;
+    filter: blur(6px);
+  }
+  .hero-card--back{ transition-delay: 0.15s; }
+  .hero-card--approval{ transition-delay: 0.75s; }
+  .hero-card--profile{ transition-delay: 0.4s; }
+
+  /* Card C — back: full app frame hint */
+  .hero-card--back{
+    width: min(760px, 92%);
+    height: 78%;
+    right: 2%;
+    bottom: -4%;
+    z-index: 1;
+    transform: rotateX(calc(var(--tilt) * 6deg)) rotateY(calc(var(--tilt) * -8deg)) rotateZ(var(--cardA-rz)) translateZ(0px);
+    padding: 22px 26px;
+  }
+  .hero-card--back .frame-bar{
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .hero-card--back .frame-dot{
+    width: 8px; height: 8px; border-radius: 50%;
+    background: rgba(0,0,0,0.12);
+  }
+  .frame-tabs{ display: flex; gap: 8px; margin-left: 18px; }
+  .frame-tabs span{
+    width: 54px; height: 8px; border-radius: 4px;
+    background: rgba(0,0,0,0.06);
+  }
+  .frame-tabs span.on{ background: rgba(0,0,0,0.14); }
+  .frame-body{
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 22px;
+    padding-top: 16px;
+    height: calc(100% - 36px);
+  }
+  .frame-side{ display: flex; flex-direction: column; gap: 10px; }
+  .frame-side span{
+    height: 9px; border-radius: 4px;
+    background: rgba(0,0,0,0.06);
+  }
+  .frame-side span.on{ background: rgba(0,0,0,0.14); width: 86%; }
+  .frame-side span:nth-child(2){ width: 72%; }
+  .frame-side span:nth-child(3){ width: 80%; }
+  .frame-side span:nth-child(4){ width: 64%; }
+  .frame-side span:nth-child(5){ width: 76%; }
+  .frame-main{ display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+  .frame-head{
+    height: 12px; width: 34%; border-radius: 4px;
+    background: rgba(0,0,0,0.10);
+    margin-bottom: 2px;
+  }
+  .frame-row{
+    display: flex; align-items: center; gap: 12px;
+    padding: 9px 12px;
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    background: rgba(0,0,0,0.015);
+  }
+  .frame-row i{
+    width: 18px; height: 18px; border-radius: 50%;
+    background: rgba(0,0,0,0.10); flex: none;
+  }
+  .frame-row b{ height: 8px; border-radius: 4px; background: rgba(0,0,0,0.08); }
+  .frame-row em{
+    margin-left: auto; flex: none;
+    width: 44px; height: 14px; border-radius: 7px;
+    background: var(--blue-t2);
+  }
+  .frame-row .w34{ width: 34%; } .frame-row .w28{ width: 28%; } .frame-row .w38{ width: 38%; }
+  .frame-row .w30{ width: 30%; } .frame-row .w36{ width: 36%; } .frame-row .w18{ width: 18%; }
+  .frame-row .w22{ width: 22%; } .frame-row .w14{ width: 14%; } .frame-row .w16{ width: 16%; }
+  .frame-row .w20{ width: 20%; }
+
+  .hero-card--profile{ transition-delay: 0.4s; }
+
+  /* Card C — back: full app frame hint */
+  .hero-card--back{
+    width: min(760px, 92%);
+    height: 78%;
+    right: 2%;
+    bottom: -4%;
+    z-index: 1;
+    transform: rotateX(calc(var(--tilt) * 6deg)) rotateY(calc(var(--tilt) * -8deg)) rotateZ(var(--cardA-rz)) translateZ(0px);
+    padding: 22px 26px;
+  }
+  .hero-card--back .frame-bar{
+    display: flex;
+    gap: 6px;
+    margin-bottom: 18px;
+  }
+  .hero-card--back .frame-dot{
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--border-moderate);
+  }
+  .hero-card--back .frame-lines{
+    display: grid;
+    gap: 10px;
+  }
+  .hero-card--back .frame-line{
+    height: 10px;
+    border-radius: 4px;
+    background: var(--border-subtle);
+  }
+  .hero-card--back .frame-line.w60{ width: 60%; }
+  .hero-card--back .frame-line.w80{ width: 80%; }
+  .hero-card--back .frame-line.w40{ width: 40%; }
+  .hero-card--back .frame-grid{
+    margin-top: 22px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+  .hero-card--back .frame-tile{
+    height: 64px;
+    border-radius: 8px;
+    background: var(--color-bg-1);
+    border: 1px solid var(--border-subtle);
+  }
+
+  /* Card A — front: client profile */
+  .hero-card--profile{
+    width: min(300px, 78%);
+    left: 0;
+    top: 6%;
+    z-index: 3;
+    transform: rotateX(calc(var(--tilt) * 4deg)) rotateY(calc(var(--tilt) * 6deg)) rotateZ(var(--cardB-rz)) translateZ(60px);
+    padding: 18px 20px 20px;
+  }
+  .card-eyebrow{
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--content-subtle);
+    margin-bottom: 8px;
+  }
+  .card-name{
+    font-family: var(--font-display);
+    font-size: var(--text-h3);
+    color: var(--content-primary);
+    margin-bottom: 2px;
+  }
+  .card-sub{
+    font-size: var(--text-xs);
+    color: var(--content-tertiary);
+    margin-bottom: 14px;
+  }
+  .card-updated{
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--content-subtle);
+    margin-bottom: 14px;
+  }
+  .card-updated .dot{
+    width: 6px; height: 6px; border-radius: 50%;
+    background: #4caf6d;
+  }
+  .card-divider{
+    height: 1px;
+    background: var(--border-subtle);
+    margin: 12px 0;
+  }
+  .card-signal{
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: var(--text-xs);
+    line-height: 1.45;
+    margin-bottom: 10px;
+    color: var(--content-secondary);
+  }
+  .card-signal .tag{
+    flex: none;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: var(--blue-t2);
+    color: var(--blue-z8);
+    margin-top: 1px;
+  }
+
+  /* Card B — mid: pending approval + email draft */
+  .hero-card--approval{
+    width: min(340px, 84%);
+    right: 0;
+    bottom: 2%;
+    z-index: 2;
+    transform: rotateX(calc(var(--tilt) * 5deg)) rotateY(calc(var(--tilt) * -4deg)) rotateZ(var(--cardC-rz)) translateZ(30px);
+    padding: 18px 20px 20px;
+  }
+  .approval-row{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .approval-text{
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--content-primary);
+  }
+  .approval-sub{
+    font-size: 11px;
+    color: var(--content-tertiary);
+    margin-top: 2px;
+  }
+  .approve-btn{
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 6px 10px;
+    border-radius: var(--radius-md);
+    background: #e9f6ee;
+    color: #2e7d4f;
+    border: 1px solid rgba(46,125,79,0.18);
+  }
+  @media (prefers-color-scheme: dark){
+    .approve-btn{ background: rgba(76,175,109,0.15); color: #7fd99b; border-color: rgba(76,175,109,0.25); }
+  }
+  .email-draft{
+    border-radius: 8px;
+    background: var(--color-bg-1);
+    border: 1px solid var(--border-subtle);
+    padding: 12px 14px;
+  }
+  .email-draft .label{
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--content-subtle);
+    margin-bottom: 6px;
+  }
+  .email-draft .snippet{
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--content-secondary);
+    font-style: italic;
+  }
+
+  @media (max-width: 760px){
+    .hero-stack-outer{ perspective: none; }
+    .hero-stack{
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      height: auto;
+    }
+    .hero-card{
+      position: relative;
+      inset: auto !important;
+      width: min(340px, 100%) !important;
+      transform: none !important;
+    }
+    .hero-card--back{ order: 3; height: auto; padding: 20px; }
+    .hero-card--profile{ order: 1; }
+    .hero-card--approval{ order: 2; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .hero-card{ transition: none; opacity: 1 !important; filter: none !important; }
+    html{ scroll-behavior: auto; }
+  }
+
+  /* ---------------- generic section rhythm ---------------- */
+  section{ padding-block: clamp(64px, 9vw, 120px); }
+  .section-head{
+    max-width: 640px;
+    margin-bottom: clamp(36px, 5vw, 56px);
+  }
+  .section-head.center{ margin-inline: auto; text-align: center; }
+  .section-title{
+    font-size: clamp(26px, 3.4vw, 36px);
+    letter-spacing: -0.015em;
+    line-height: 1.15;
+  }
+  .section-body{
+    margin-top: 16px;
+    font-size: var(--text-lg);
+    line-height: 1.65;
+    color: var(--content-secondary);
+  }
+
+  /* ---------------- problem / stats ---------------- */
+  .problem{ }
+  .stats-grid{
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border-subtle);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+  .stat-cell{
+    background: var(--color-bg-0);
+    padding: 28px 24px;
+  }
+  .stat-num{
+    font-family: var(--font-display);
+    font-size: var(--text-4xl);
+    letter-spacing: -0.02em;
+    color: var(--content-primary);
+  }
+  .stat-label{
+    margin-top: 8px;
+    font-size: var(--text-sm);
+    line-height: 1.5;
+    color: var(--content-tertiary);
+  }
+  .attribution{
+    margin-top: 16px;
+    font-size: var(--text-xxs);
+    color: var(--content-subtle);
+  }
+  @media (max-width: 700px){
+    .stats-grid{ grid-template-columns: 1fr; }
+  }
+
+  /* ---------------- how it works ---------------- */
+  .beats{
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+  }
+  .beat{
+    padding-top: 20px;
+    border-top: 1px solid var(--border-moderate);
+  }
+  .beat-num{
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    color: var(--content-subtle);
+    margin-bottom: 14px;
+  }
+  .beat h3{
+    font-size: var(--text-h3);
+    color: var(--content-primary);
+    margin-bottom: 10px;
+  }
+  .beat p{
+    margin: 0;
+    font-size: var(--text-base);
+    line-height: 1.65;
+    color: var(--content-secondary);
+  }
+  @media (max-width: 800px){
+    .beats{ grid-template-columns: 1fr; gap: 28px; }
+  }
+
+  /* ---------------- trust ---------------- */
+  .trust{ background: var(--color-bg-1); border-top: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle); }
+  .trust-grid{
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 28px;
+    margin-top: 44px;
+  }
+  .trust-point h4{
+    font-size: var(--text-base);
+    font-weight: 600;
+    font-family: var(--font-body);
+    color: var(--content-primary);
+    margin-bottom: 8px;
+  }
+  .trust-point p{
+    margin: 0;
+    font-size: var(--text-sm);
+    line-height: 1.6;
+    color: var(--content-secondary);
+  }
+  @media (max-width: 800px){
+    .trust-grid{ grid-template-columns: 1fr; gap: 24px; }
+  }
+
+  /* ---------------- founders ---------------- */
+  .founders-body{
+    max-width: 720px;
+    font-size: var(--text-lg);
+    line-height: 1.7;
+    color: var(--content-secondary);
+  }
+  .signoff{
+    margin-top: 28px;
+    font-family: var(--font-display);
+    font-size: var(--text-h4);
+    color: var(--content-primary);
+  }
+  .signoff a{
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    color: var(--blue-z8);
+    text-decoration: none;
+    border-bottom: 1px solid var(--blue-t2);
+  }
+  .signoff a:hover{ border-bottom-color: var(--blue-z8); }
+
+  /* ---------------- waitlist ---------------- */
+  .waitlist-card{
+    max-width: 560px;
+    margin-inline: auto;
+    text-align: center;
+  }
+  form.waitlist-form{
+    margin-top: 32px;
+    text-align: left;
+    display: grid;
+    gap: 14px;
+  }
+  .field label{
+    display: block;
+    font-size: var(--text-xs);
+    color: var(--content-tertiary);
+    margin-bottom: 6px;
+  }
+  .field input,
+  .field textarea{
+    width: 100%;
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+    padding: 11px 14px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-moderate);
+    background: var(--color-white);
+    color: var(--content-primary);
+    resize: vertical;
+  }
+  .field input:focus,
+  .field textarea:focus{
+    outline: none;
+    border-color: var(--blue-z5);
+    box-shadow: 0 0 0 3px var(--blue-t2);
+  }
+  .waitlist-form .btn-primary{ width: 100%; height: 44px; font-size: var(--text-base); margin-top: 4px; }
+  .form-success{
+    display: none;
+    margin-top: 32px;
+    padding: 20px;
+    border-radius: var(--radius-lg);
+    background: var(--blue-t2);
+    color: var(--content-primary);
+    font-size: var(--text-base);
+  }
+  .form-success.visible{ display: block; }
+
+  /* ---------------- footer ---------------- */
+  footer{
+    border-top: 1px solid var(--border-subtle);
+    padding-block: 40px;
+  }
+  .footer-inner{
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .footer-line1{
+    font-size: var(--text-sm);
+    color: var(--content-secondary);
+  }
+  .footer-line2{
+    font-size: var(--text-xs);
+    color: var(--content-subtle);
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-wash" aria-hidden="true"></div>
+
+<div class="navbar-wrap">
+  <nav class="navbar">
+    <a class="brand" href="#top">Ta-da.</a>
+    <div class="navlinks">
+      <a href="#how">How it works</a>
+      <a href="#trust">Trust</a>
+      <a href="#founders">Founders</a>
+    </div>
+    <a class="btn btn-primary" href="#waitlist">Request early access <span class="arrow">→</span></a>
+  </nav>
+</div>
+
+<main id="top">
+
+  <!-- ============ HERO ============ -->
+  <section class="hero container">
+    <div class="hero-copy">
+      <span class="eyebrow">For financial advisors &amp; RIAs</span>
+      <h1>Every advisor deserves a chief of staff.</h1>
+      <p class="subline">AI that remembers every client detail, preps every meeting, and handles the follow-through — always with your approval, on models we run ourselves. Client data never touches a third-party AI provider.</p>
+      <div class="hero-ctas">
+        <a class="btn btn-primary" href="#waitlist">Request early access <span class="arrow">→</span></a>
+        <a class="btn btn-secondary" href="#how">See how it works</a>
+      </div>
+    </div>
+
+    <div class="hero-stack-outer">
+      <div class="hero-stack">
+
+        <!-- Card C: back — full app frame hint -->
+        <div class="hero-card hero-card--back" aria-hidden="true">
+          <div class="frame-bar">
+            <div class="frame-dot"></div><div class="frame-dot"></div><div class="frame-dot"></div>
+            <div class="frame-tabs"><span class="on"></span><span></span><span></span></div>
+          </div>
+          <div class="frame-body">
+            <div class="frame-side">
+              <span class="on"></span><span></span><span></span><span></span><span></span>
+            </div>
+            <div class="frame-main">
+              <div class="frame-head"></div>
+              <div class="frame-row"><i></i><b class="w34"></b><b class="w18"></b><em></em></div>
+              <div class="frame-row"><i></i><b class="w28"></b><b class="w22"></b><em></em></div>
+              <div class="frame-row"><i></i><b class="w38"></b><b class="w14"></b><em></em></div>
+              <div class="frame-row"><i></i><b class="w30"></b><b class="w20"></b><em></em></div>
+              <div class="frame-row"><i></i><b class="w36"></b><b class="w16"></b><em></em></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card B: mid — pending approval -->
+        <div class="hero-card hero-card--approval">
+          <div class="approval-row">
+            <div>
+              <div class="approval-text">Book follow-up — Thu 10:00</div>
+              <div class="approval-sub">Suggested from today's meeting notes</div>
+            </div>
+            <span class="approve-btn">✓ Approve</span>
+          </div>
+          <div class="email-draft">
+            <div class="label">Drafted follow-up</div>
+            <div class="snippet">"Hi Jordan — great catching up…"</div>
+          </div>
+        </div>
+
+        <!-- Card A: front — client profile -->
+        <div class="hero-card hero-card--profile">
+          <div class="card-eyebrow">Household</div>
+          <div class="card-name">Jordan Ellis</div>
+          <div class="card-sub">Household · $2.4M</div>
+          <div class="card-updated"><span class="dot"></span> Profile updated 2m ago</div>
+          <div class="card-divider"></div>
+          <div class="card-signal">
+            <span class="tag">Signal</span>
+            <span>Life event — new job, VP Eng</span>
+          </div>
+          <div class="card-signal">
+            <span class="tag">Due</span>
+            <span>Next RMD due in 41 days</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PROBLEM ============ -->
+  <section class="problem container">
+    <div class="section-head">
+      <h2 class="section-title">You're the advisor — and the assistant</h2>
+      <p class="section-body">Your edge is the relationship. But barely 4 hours of a 10-hour day are spent with clients — the rest is the job nobody hired you for: prep, notes, follow-ups, chasing your own promises. The big teams solved this with people. Most advisors got a CRM instead: a filing cabinet that remembers nothing you don't type and does nothing you don't click.</p>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-cell">
+        <div class="stat-num">41%</div>
+        <div class="stat-label">of advisor time actually spent with clients</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-num">1,350 hrs</div>
+        <div class="stat-label">a year of prep, notes &amp; follow-up on a 100-client book — two-thirds of a full-time hire</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-num">0 → half the industry</div>
+        <div class="stat-label">AI notetaker adoption in one year. Advisors are ready — notetakers just don't finish the job</div>
+      </div>
+    </div>
+    <div class="attribution">Kitces Research; T3/Inside Information Advisor Software Survey</div>
+  </section>
+
+  <!-- ============ HOW IT WORKS ============ -->
+  <section id="how" class="container">
+    <div class="section-head center">
+      <h2 class="section-title">What a great chief of staff does</h2>
+    </div>
+
+    <div class="beats">
+      <div class="beat">
+        <div class="beat-num">01</div>
+        <h3>Everything flows in</h3>
+        <p>Email, meeting notes, documents — captured automatically. AI extracts what matters: household changes, goals, concerns, commitments.</p>
+      </div>
+      <div class="beat">
+        <div class="beat-num">02</div>
+        <h3>It knows your book — and tells you what matters</h3>
+        <p>Every profile updates itself, zero data entry. Walk into every meeting — client or prospect — fully briefed, and get surfaced what you'd otherwise miss: a job change, an inheritance mention, an RMD coming due, a good client gone quiet.</p>
+      </div>
+      <div class="beat">
+        <div class="beat-num">03</div>
+        <h3>It does the work — with your approval</h3>
+        <p>Books the follow-up meeting the moment one is promised. Drafts the follow-up email in your voice. Automates outreach — birthdays, RMD deadlines, clients who've gone quiet. Every action shows you exactly what it will do and runs only when you say go.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ TRUST ============ -->
+  <section id="trust" class="trust">
+    <div class="container">
+      <div class="section-head">
+        <h2 class="section-title">Your clients' data is not training data</h2>
+        <p class="section-body">We run our own AI models on infrastructure we control. Client data is never sent to third-party AI providers — not OpenAI, not Anthropic, not Google. Nothing is used for training, and every action the AI takes is written to an audit trail your compliance officer can read.</p>
+      </div>
+
+      <div class="trust-grid">
+        <div class="trust-point">
+          <h4>Our models, our infrastructure</h4>
+          <p>Open-weight models we host and run — no third-party AI subprocessors.</p>
+        </div>
+        <div class="trust-point">
+          <h4>No training on your data</h4>
+          <p>Your book of business stays your book of business.</p>
+        </div>
+        <div class="trust-point">
+          <h4>Audit trail built in</h4>
+          <p>Every AI read and write, logged. Designed for the SEC's and FINRA's AI expectations.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FOUNDERS ============ -->
+  <section id="founders" class="container">
+    <div class="section-head">
+      <h2 class="section-title">Built by the team behind Klaviyo's customer data engine</h2>
+    </div>
+    <p class="founders-body">We're a two-person founding team from Klaviyo, the company that defined modern B2C CRM. Seed Zeng was a founding engineer who built and scaled Klaviyo's real-time customer-data platform 300× — the engine behind profiles that stay current for tens of thousands of businesses. Hansen Liang took two new product lines from zero to market at Klaviyo. We've spent our careers on exactly two problems: keeping customer profiles alive at scale, and shipping products people love. Now we're building the chief of staff every advisor deserves — with a small group of design partners, at startup-of-two speed.</p>
+    <div class="signoff">
+      — Seed &amp; Hansen
+      <div style="margin-top:10px; display:flex; gap:16px;">
+        <a href="https://www.seedzeng.com/" target="_blank" rel="noopener">seedzeng.com</a>
+        <a href="https://www.hansenliang.com/" target="_blank" rel="noopener">hansenliang.com</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ WAITLIST ============ -->
+  <section id="waitlist" class="container">
+    <div class="waitlist-card">
+      <h2 class="section-title">Become a founding design partner</h2>
+      <p class="section-body">We're onboarding a small group of advisors and RIA firms to shape the product around real workflows and real compliance requirements. Early access, a direct line to the founders, and your feedback in the product on a weekly cadence.</p>
+
+      <form class="waitlist-form" id="waitlist-form" onsubmit="return submitWaitlist(event)">
+        <div class="field">
+          <label for="wl-email">Email</label>
+          <input id="wl-email" name="email" type="email" placeholder="you@yourfirm.com" required />
+        </div>
+        <div class="field">
+          <label for="wl-note">Tell us about your practice (optional)</label>
+          <textarea id="wl-note" name="note" rows="3" placeholder=""></textarea>
+        </div>
+        <button class="btn btn-primary" type="submit">Request early access <span class="arrow">→</span></button>
+      </form>
+
+      <div class="form-success" id="waitlist-success" role="status">You're on the list — we'll be in touch shortly.</div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="container footer-inner">
+    <div class="footer-line1">Tada — the AI chief of staff for financial advisors.</div>
+    <div class="footer-line2">Early access · © 2026</div>
+  </div>
+</footer>
+
+<script>
+  // Visual-only stub: prevent default, hide form, show success message.
+  function submitWaitlist(e){
+    e.preventDefault();
+    var form = document.getElementById('waitlist-form');
+    var success = document.getElementById('waitlist-success');
+    form.style.display = 'none';
+    success.classList.add('visible');
+    return false;
+  }
+
+  // Entrance fade (progressive enhancement): cards are visible by default.
+  // Briefly apply the pre-anim state, then release it on the next frame so the
+  // CSS transition plays. If transitions are suspended (some embedded webviews),
+  // removal degrades to an instant jump to the visible state. A watchdog clears
+  // the pre state unconditionally in case rAF never fires.
+  (function(){
+    if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var cards = document.querySelectorAll('.hero-card');
+    try {
+      cards.forEach(function(c){ c.classList.add('pre-anim'); });
+      void document.body.offsetHeight; // force reflow so the pre state paints
+      requestAnimationFrame(function(){
+        requestAnimationFrame(function(){
+          cards.forEach(function(c){ c.classList.remove('pre-anim'); });
+        });
+      });
+    } catch (_) {}
+    setTimeout(function(){
+      cards.forEach(function(c){ c.classList.remove('pre-anim'); });
+    }, 3000);
+  })();
+
+  // Live 3D: JS-composed transforms (rAF — immune to webview CSS-animation
+  // suspension). Each card gently floats on its own phase, and the whole stack
+  // parallax-tilts toward the pointer. Honors the same CSS vars the tuner
+  // writes (--tilt, --cardA/B/C-rz), so knob changes stay live.
+  (function(){
+    if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var stack = document.querySelector('.hero-stack');
+    if (!stack) return;
+    var conf = [
+      { sel: '.hero-card--back',     rx: 6, ry: -8, rz: '--cardA-rz', tz: 0,  amp: 5, speed: 0.55, phase: 0.0 },
+      { sel: '.hero-card--approval', rx: 4, ry:  6, rz: '--cardB-rz', tz: 60, amp: 9, speed: 0.80, phase: 2.1 },
+      { sel: '.hero-card--profile',  rx: 5, ry: -4, rz: '--cardC-rz', tz: 30, amp: 7, speed: 0.65, phase: 4.2 }
+    ].map(function(c){ c.el = document.querySelector(c.sel); return c; }).filter(function(c){ return c.el; });
+    var mx = 0, my = 0, tx = 0, ty = 0;
+    window.addEventListener('mousemove', function(e){
+      var r = stack.getBoundingClientRect();
+      tx = Math.max(-1, Math.min(1, ((e.clientX - r.left) / r.width) * 2 - 1));
+      ty = Math.max(-1, Math.min(1, ((e.clientY - r.top) / r.height) * 2 - 1));
+    }, { passive: true });
+    function frame(now){
+      var t = now / 1000;
+      mx += (tx - mx) * 0.06;
+      my += (ty - my) * 0.06;
+      var tilt = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--tilt')) || 1;
+      conf.forEach(function(c){
+        var floatY = Math.sin(t * c.speed + c.phase) * c.amp;
+        var rx = tilt * c.rx - my * 2.5;
+        var ry = tilt * c.ry + mx * 3.5;
+        c.el.style.transform =
+          'rotateX(' + rx.toFixed(2) + 'deg)' +
+          ' rotateY(' + ry.toFixed(2) + 'deg)' +
+          ' rotateZ(var(' + c.rz + '))' +
+          ' translateZ(' + c.tz + 'px)' +
+          ' translateY(' + floatY.toFixed(2) + 'px)';
+      });
+      if (!usingTimer) requestAnimationFrame(counted);
+    }
+    // Some embedded webviews (WKWebView) freeze rAF while timers keep running.
+    // Watchdog: if no frame lands shortly after start, drive the loop with a
+    // 30fps interval instead.
+    var frames = 0, usingTimer = false;
+    var counted = function(now){ frames++; frame(now); };
+    requestAnimationFrame(counted);
+    setTimeout(function(){
+      if (frames < 2) {
+        usingTimer = true;
+        setInterval(function(){ frame(performance.now()); }, 33);
+      }
+    }, 500);
+  })();
+</script>
+
+</body>
+</html>
