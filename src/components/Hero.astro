@@ -116,13 +116,18 @@ const h = t.hero;
     line-height: 1.6;
   }
   .hero-label {
+    /* the audience statement must actually read — it is the targeting line */
     display: block;
     font-family: 'DM Mono', ui-monospace, monospace;
-    font-size: 10px;
-    letter-spacing: 1px;
+    font-size: 13px;
+    letter-spacing: 1.5px;
     text-transform: uppercase;
-    color: var(--v-ink-hint);
-    margin-bottom: 14px;
+    color: var(--v-ink-sub);
+    margin-bottom: 16px;
+  }
+  :global(html[lang='zh-CN']) .hero-label {
+    font-size: 15px;
+    letter-spacing: 2px;
   }
   h1 {
     text-wrap: balance;
@@ -300,12 +305,6 @@ const h = t.hero;
     background: #e9f6ee;
     color: #2e7d4f;
   }
-  @media (prefers-color-scheme: dark-disabled) {
-    .book-tag--ok {
-      background: rgba(76, 175, 109, 0.15);
-      color: #7fd99b;
-    }
-  }
 
   /* mid — approval */
   .hero-card--approval {
@@ -343,13 +342,6 @@ const h = t.hero;
     background: #e9f6ee;
     color: #2e7d4f;
     border: 1px solid rgba(46, 125, 79, 0.18);
-  }
-  @media (prefers-color-scheme: dark-disabled) {
-    .approve-btn {
-      background: rgba(76, 175, 109, 0.15);
-      color: #7fd99b;
-      border-color: rgba(76, 175, 109, 0.25);
-    }
   }
   .email-draft {
     border-radius: 8px;

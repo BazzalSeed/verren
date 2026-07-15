@@ -86,17 +86,21 @@ const [p1, p2, p3] = f.pages;
                     ))}
                     <div class="flow-foot">{f.book.foot}</div>
                   </div>
-                  <div class="book3-detail">
-                    <div class="fprof-eyebrow">{f.book.detail.eyebrow}</div>
-                    <div class="fprof-name">{f.book.detail.name}</div>
-                    <div class="fprof-sub">{f.book.detail.sub}</div>
-                    <div class="fprof-divider"></div>
-                    <div class="book2-sec">{f.book.detail.sec1}</div>
-                    {f.book.detail.facts.map((fact) => (
-                      <div class="bk-row"><span class="fpv-chip">{fact.chip}</span> {fact.text}</div>
+                  <div class="book3-details">
+                    {f.book.details.map((d, i) => (
+                      <div class:list={['book3-detail', i === 0 && 'on']}>
+                        <div class="fprof-eyebrow">{d.eyebrow}</div>
+                        <div class="fprof-name">{d.name}</div>
+                        <div class="fprof-sub">{d.sub}</div>
+                        <div class="fprof-divider"></div>
+                        <div class="book2-sec">{d.sec1}</div>
+                        {d.facts.map((fact) => (
+                          <div class="bk-row"><span class="fpv-chip">{fact.chip}</span> {fact.text}</div>
+                        ))}
+                        <div class="book2-sec">{d.sec2}</div>
+                        <div class="book2-brief">{d.brief}</div>
+                      </div>
                     ))}
-                    <div class="book2-sec">{f.book.detail.sec2}</div>
-                    <div class="book2-brief">{f.book.detail.brief}</div>
                   </div>
                 </div>
               </div>
@@ -201,16 +205,6 @@ const [p1, p2, p3] = f.pages;
   .fpv-chip.chip-risk {
     background: rgba(216, 138, 32, 0.14);
     color: #a06008;
-  }
-  @media (prefers-color-scheme: dark-disabled) {
-    .fpv-chip.chip-current {
-      background: rgba(76, 175, 109, 0.15);
-      color: #7fd99b;
-    }
-    .fpv-chip.chip-risk {
-      background: rgba(216, 138, 32, 0.18);
-      color: #e0a24c;
-    }
   }
 
   /* the extraction seam "works" while a transfer is in flight */
@@ -426,6 +420,25 @@ const [p1, p2, p3] = f.pages;
     border-radius: 10px;
     background: var(--v-surface);
     padding: 16px 18px;
+    display: none;
+  }
+  .book3-detail.on {
+    display: block;
+    animation: book3-in 350ms ease;
+  }
+  @keyframes book3-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  .book3-item {
+    transition: background 250ms ease;
+  }
+  .book3-item.pressed {
+    background: var(--v-brand-wash);
+    border-radius: 6px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .book3-detail.on { animation: none; }
   }
   .book2-sec {
     font-family: 'DM Mono', ui-monospace, monospace;
@@ -523,13 +536,6 @@ const [p1, p2, p3] = f.pages;
     border: 1px solid rgba(46, 125, 79, 0.18);
     transition: transform 200ms ease, background 300ms ease, color 300ms ease;
   }
-  @media (prefers-color-scheme: dark-disabled) {
-    .fpv-approve {
-      background: rgba(76, 175, 109, 0.15);
-      color: #7fd99b;
-      border-color: rgba(76, 175, 109, 0.25);
-    }
-  }
   .adone-row {
     font-size: var(--text-xs);
     color: var(--v-ink-sub);
@@ -613,7 +619,27 @@ const [p1, p2, p3] = f.pages;
       }, 2100);
     });
 
-    // ---- 03: approve → the item leaves the queue and lands in the ledger ----
+    // ---- 02: the book — click through each client; detail panel follows ----
+    document.querySelectorAll('.fp-book').forEach((visual) => {
+      const items = Array.from(visual.querySelectorAll<HTMLElement>('.book3-item'));
+      const details = Array.from(visual.querySelectorAll<HTMLElement>('.book3-detail'));
+      if (items.length < 2 || items.length !== details.length) return;
+      let idx = 0;
+      setInterval(() => {
+        const next = (idx + 1) % items.length;
+        items[next].classList.add('pressed');
+        setTimeout(() => {
+          items[next].classList.remove('pressed');
+          items.forEach((el, i) => el.classList.toggle('on', i === next));
+          details.forEach((el, i) => el.classList.toggle('on', i === next));
+          idx = next;
+        }, 260);
+      }, 3800);
+    });
+
+    // ---- 03: approve → items get crossed off and land in the ledger.
+    // Runs ONCE each time the page becomes visible (ends at "all clear"),
+    // and re-arms after you leave the section — a constant loop is too busy.
     document.querySelectorAll('.fp-appr').forEach((visual) => {
       const items = Array.from(visual.querySelectorAll<HTMLElement>('.appr-item'));
       const done = Array.from(visual.querySelectorAll<HTMLElement>('.adone-row'));
@@ -624,43 +650,69 @@ const [p1, p2, p3] = f.pages;
       const approveTxt = el.dataset.approve ?? '✓ Approve';
       const approvedTxt = el.dataset.approved ?? '✓ Approved';
       const pending = (n: number) => pendingFmt.replace('{n}', String(n));
+
       let step = 0;
-      setInterval(() => {
-        if (step < items.length) {
-          const idx = step;
-          const item = items[idx];
+      let timer: ReturnType<typeof setInterval> | null = null;
+      let finished = false;
+
+      const reset = () => {
+        items.forEach((item) => {
+          item.classList.remove('fv-active', 'crossed');
           const btn = item.querySelector<HTMLElement>('.fpv-approve');
-          item.classList.add('fv-active');
-          btn?.classList.add('fv-clicked');
-          setTimeout(() => {
-            btn?.classList.remove('fv-clicked');
-            btn?.classList.add('fv-done');
-            if (btn) btn.textContent = approvedTxt;
-          }, 350);
-          setTimeout(() => {
-            item.classList.remove('fv-active');
-            item.classList.add('crossed');
-            const left = items.length - idx - 1;
-            done[idx]?.classList.add('show');
-            if (count) count.textContent = left > 0 ? pending(left) : allClear;
-          }, 950);
-          step++;
-        } else if (step === items.length) {
-          step++; // hold one full beat on "nothing waiting on you"
-        } else {
-          // reset the day
-          items.forEach((item) => {
-            item.classList.remove('fv-active', 'crossed');
+          btn?.classList.remove('fv-clicked', 'fv-done');
+          if (btn) btn.textContent = approveTxt;
+        });
+        done.forEach((d) => d.classList.remove('show'));
+        if (count) count.textContent = pending(items.length);
+        step = 0;
+        finished = false;
+      };
+
+      const start = () => {
+        if (timer || finished) return;
+        timer = setInterval(() => {
+          if (step < items.length) {
+            const idx = step;
+            const item = items[idx];
             const btn = item.querySelector<HTMLElement>('.fpv-approve');
-            btn?.classList.remove('fv-done');
-            if (btn) btn.textContent = approveTxt;
-          });
-          done.forEach((d) => d.classList.remove('show'));
-          visual.querySelector('.appr-empty')?.classList.remove('show');
-          if (count) count.textContent = pending(items.length);
-          step = 0;
-        }
-      }, 2500);
+            item.classList.add('fv-active');
+            btn?.classList.add('fv-clicked');
+            setTimeout(() => {
+              btn?.classList.remove('fv-clicked');
+              btn?.classList.add('fv-done');
+              if (btn) btn.textContent = approvedTxt;
+            }, 350);
+            setTimeout(() => {
+              item.classList.remove('fv-active');
+              item.classList.add('crossed');
+              const left = items.length - idx - 1;
+              done[idx]?.classList.add('show');
+              if (count) count.textContent = left > 0 ? pending(left) : allClear;
+            }, 950);
+            step++;
+          } else {
+            // day done — hold on "all clear" until the section is re-entered
+            if (timer) clearInterval(timer);
+            timer = null;
+            finished = true;
+          }
+        }, 2500);
+      };
+
+      // Visibility watcher (setInterval — webview-safe). The vpin driver keeps
+      // every page mounted inside the sticky viewport, so IO alone can't tell
+      // which page is showing; check the page's computed visibility instead.
+      const pageEl = (visual.closest('.vpin-page') ?? visual) as HTMLElement;
+      const isShowing = () => {
+        const r = pageEl.getBoundingClientRect();
+        if (r.bottom <= 0 || r.top >= innerHeight || r.width === 0) return false;
+        const cs = getComputedStyle(pageEl);
+        return cs.visibility !== 'hidden' && parseFloat(cs.opacity || '1') > 0.6;
+      };
+      setInterval(() => {
+        if (isShowing()) start();
+        else if (finished) reset(); // left the section after a full run — re-arm
+      }, 400);
     });
   })();
 </script>

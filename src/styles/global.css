@@ -1,4 +1,7 @@
 @import "tailwindcss";
+/* only the site's own source generates utilities — docs contain pasted
+   research (e.g. lightfield class dumps) that must not leak into the CSS */
+@source not "../../docs";
 
 /* Caveat — the handwritten voice (self-hosted, ported from Clawdia).
    Used sparingly: page numerals, margin notes, the founders' sign-off.
@@ -62,38 +65,6 @@
   color-scheme: light;
 }
 
-/* DARK MODE — DISABLED FOR NOW (2026-07): every dark block below is gated on
-   the never-matching `dark-disabled` value. To re-enable, run:
-   grep -rl 'dark-disabled' src/ | xargs sed -i '' 's/dark-disabled/dark/g' */
-@media (prefers-color-scheme: dark-disabled) {
-  :root {
-    --v-ink-title: rgba(255, 255, 255, 0.88);
-    --v-ink-strong: rgba(255, 255, 255, 0.78);
-    --v-ink-sub: rgba(255, 255, 255, 0.62);
-    --v-ink-body: rgba(255, 255, 255, 0.52);
-    --v-ink-hint: rgba(255, 255, 255, 0.38);
-    --v-ink-subtle: rgba(255, 255, 255, 0.28);
-    --v-ink-faint: rgba(255, 255, 255, 0.14);
-
-    --v-bg: #0d0d0d;                    /* obsidian */
-    --v-surface: #141414;
-    --v-card: #1a1a1a;
-
-    --v-hairline: rgba(255, 255, 255, 0.06);
-    --v-border-subtle: rgba(255, 255, 255, 0.08);
-    --v-border-moderate: rgba(255, 255, 255, 0.14);
-
-    --v-fill: rgba(255, 255, 255, 0.06);
-    --v-fill-hover: rgba(255, 255, 255, 0.09);
-
-    --v-wash-top: #1c1e22;
-    --v-wash-bottom: #171513;
-
-    --v-nav-fill: rgba(13, 13, 13, 0.55);
-
-    color-scheme: dark;
-  }
-}
 
 @theme {
   /* single family, load 400 only */
@@ -287,12 +258,6 @@
     -webkit-backdrop-filter: blur(17px);
     pointer-events: none;
     z-index: -1;
-  }
-  @media (prefers-color-scheme: dark-disabled) {
-    .v-navbar::before {
-      backdrop-filter: blur(23px);
-      -webkit-backdrop-filter: blur(23px);
-    }
   }
 }
 
