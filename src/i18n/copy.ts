@@ -146,18 +146,18 @@ const en = {
     pages: [
       {
         num: '01',
-        title: 'Profiles that keep themselves current',
-        body: 'Email, meetings, texts, documents — captured automatically from every source. Verren reads it all and writes what matters to the profile: household changes, goals, concerns, commitments. You type nothing.',
+        title: 'I keep your client profiles current',
+        body: 'Email, meetings, texts, documents — I capture it all automatically, from every source, and write what matters to the profile: household changes, goals, concerns, commitments. You type nothing.',
       },
       {
         num: '02',
-        title: 'It knows your book — and tells you what matters',
-        body: "Every client profile stays current. Open anyone and you're fully briefed — and what you'd otherwise miss gets surfaced: a job change, an inheritance mention, an RMD coming due, a good client gone quiet.",
+        title: 'I know your book — and tell you what matters',
+        body: "Open anyone and you're fully briefed — and I surface what you'd otherwise miss: a job change, an inheritance mention, an RMD coming due, a good client gone quiet.",
       },
       {
         num: '03',
-        title: 'It does the work — with your approval',
-        body: 'Books the follow-up the moment one is promised. Drafts the email in your voice. Runs the outreach. Every action waits for your approval — then lands in a ledger your compliance officer can read.',
+        title: 'I do the work — with your approval',
+        body: 'I book the follow-up the moment one is promised, draft the email in your voice, and run the outreach. Every action waits for your approval — then lands in a ledger your compliance officer can read.',
       },
     ],
     flow: {
@@ -473,18 +473,18 @@ const zh: Copy = {
     pages: [
       {
         num: '01',
-        title: '客户档案自动保持最新',
-        body: '邮件、会议、短信和文件会从各个渠道自动汇入。Verren 读取内容，把家庭变化、目标、顾虑和承诺等重要信息写入档案，你无需手动录入。',
+        title: '我为你把客户档案保持最新',
+        body: '邮件、会议、短信和文件——我从每个渠道自动捕捉，逐一读取，把家庭变化、目标、顾虑和承诺等重要信息写入档案。你一个字都不用输。',
       },
       {
         num: '02',
-        title: '了解每位客户，也主动提醒你该关注什么',
-        body: '每位客户的资料都保持最新。打开任何一份档案，你都能快速掌握全貌；那些容易错过的变化也会被主动提示：工作变动、继承事项、即将到期的 RMD，或长期没有联系的重要客户。',
+        title: '我熟悉你的每位客户——并主动告诉你什么值得关注',
+        body: '打开任何一份档案，你都能快速掌握全貌；容易错过的变化我也会主动提示：工作变动、继承事项、即将到期的 RMD，或久未联系的重要客户。',
       },
       {
         num: '03',
-        title: '把后续工作做完，但始终由你把关',
-        body: '一旦承诺了跟进，会议安排和邮件草稿就会自动准备好，客户触达也会持续推进。每个动作都先等你确认，执行后再写入合规负责人可直接查阅的记录。',
+        title: '我把后续工作做完——每一步由你把关',
+        body: '你一承诺跟进，我就订好会议、用你的语气拟好邮件、持续推进客户触达。每个动作都先等你确认——执行后写入合规负责人可直接查阅的记录。',
       },
     ],
     flow: {
