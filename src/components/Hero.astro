@@ -146,12 +146,14 @@ const h = t.hero;
   }
   .hero-stack {
     /* tunables */
-    --tilt: 1;
+    /* 0.5 halves every rotateX/rotateY (JS honors it too) — full strength
+       read as "falling over"; the collage should whisper depth, not shout */
+    --tilt: 0.5;
     --card-radius: 14px;
     --card-shadow-a: 0.18;
-    --cardA-rz: -3.5deg; /* back frame */
-    --cardB-rz: -4.5deg; /* approval */
-    --cardC-rz: -3deg;   /* profile */
+    --cardA-rz: -1.8deg; /* back frame */
+    --cardB-rz: -2.4deg; /* approval */
+    --cardC-rz: -1.5deg; /* profile */
 
     /* absolute: the unscaled 760px layout box must not size the grid column */
     position: absolute;
