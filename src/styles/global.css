@@ -62,7 +62,10 @@
   color-scheme: light;
 }
 
-@media (prefers-color-scheme: dark) {
+/* DARK MODE — DISABLED FOR NOW (2026-07): every dark block below is gated on
+   the never-matching `dark-disabled` value. To re-enable, run:
+   grep -rl 'dark-disabled' src/ | xargs sed -i '' 's/dark-disabled/dark/g' */
+@media (prefers-color-scheme: dark-disabled) {
   :root {
     --v-ink-title: rgba(255, 255, 255, 0.88);
     --v-ink-strong: rgba(255, 255, 255, 0.78);
@@ -211,13 +214,18 @@
     width: max-content;
     border: 0.5px solid var(--v-border-moderate);
     border-radius: var(--radius-sm);
-    padding: 5px 6px;
-    font-size: 9px;
+    padding: 6px 8px;
+    font-size: 11px;
     line-height: 1;
     letter-spacing: 1px;
     text-transform: uppercase;
     font-weight: 500;
     color: var(--v-ink-body);
+  }
+  /* CJK needs more size than mono-caps latin at the same optical weight */
+  html[lang='zh-CN'] .v-chip {
+    font-size: 13px;
+    letter-spacing: 2px;
   }
 
   /* buttons — barely-there fills, 26px tall, 12px text, arrow-nudge */
@@ -280,7 +288,7 @@
     pointer-events: none;
     z-index: -1;
   }
-  @media (prefers-color-scheme: dark) {
+  @media (prefers-color-scheme: dark-disabled) {
     .v-navbar::before {
       backdrop-filter: blur(23px);
       -webkit-backdrop-filter: blur(23px);

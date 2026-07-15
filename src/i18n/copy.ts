@@ -441,7 +441,7 @@ const zh: Copy = {
 
   features: {
     chip: '核心能力',
-    title: '真正好用的 AI 助理，应该做到这些。',
+    title: '真正好的助理，会为您做到这些。',
     pages: [
       {
         num: '01',
