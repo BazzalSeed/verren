@@ -155,10 +155,11 @@ actual bold weight.
   product around real workflows and real compliance requirements. Early access,
   a direct line to the founders, and your feedback in the product on a weekly
   cadence.`
-- Form fields: name · work email (required; soft hint if a personal domain —
-  never blocks: `Looks like a personal address — a firm email helps us verify
-  you, but it's not required.`) · firm website · current CRM (optional) ·
-  practice note (optional, label `Tell us about your practice (optional)`)
+- Form fields: name · work email (required; personal domains BLOCKED:
+  `Please use your firm email — personal addresses (Gmail, Yahoo, …) can't be
+  verified.`) · firm website (accepts `yourfirm.com`, normalized to https://;
+  basic validity check) · current CRM (optional) · practice note (optional,
+  label `Tell us about your practice (optional)`)
 - Submit button: `Request early access`
 - Success message: `You're on the list — we'll be in touch shortly.`
 - Error message: `Something went wrong — your email wasn't lost, try again.`

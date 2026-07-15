@@ -18,6 +18,22 @@ import '../styles/global.css';
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="theme-color" content="#F6F4EF" />
+
+    {/* link previews (iMessage / Slack / social) */}
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Verren" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content="Capture anything. Extract what matters. Take action with confidence." />
+    <meta property="og:url" content="https://verren.app/" />
+    <meta property="og:image" content="https://verren.app/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content="Capture anything. Extract what matters. Take action with confidence." />
+    <meta name="twitter:image" content="https://verren.app/og.png" />
 
     <link rel="preconnect" href="https://api.fontshare.com" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -36,19 +52,34 @@ import '../styles/global.css';
     {/* hero atmosphere — fixed gradient wash; fades out as you scroll (scrubbed) */}
     <div class="v-wash" id="v-wash" aria-hidden="true"></div>
 
-    <div class="v-navwrap">
-      <nav class="v-navbar flex w-full max-w-[880px] items-center justify-between gap-6 py-1 pr-1.5 pl-4">
+    <header class="v-header" data-header>
+      <div class="v-container flex h-[60px] items-center justify-between gap-6">
         <a class="v-wordmark no-underline" href="#top">Verren</a>
-        <div class="hidden items-center gap-1 sm:flex">
+        <nav class="hidden items-center gap-1 md:flex">
           <a class="v-navlink" href="#problem">The problem</a>
           <a class="v-navlink" href="#introducing">Introducing</a>
           <a class="v-navlink" href="#features">Features</a>
           <a class="v-navlink" href="#security">Security</a>
           <a class="v-navlink" href="#founders">Founders</a>
+        </nav>
+        <div class="flex items-center gap-3">
+          <a class="v-btn v-btn--primary hidden sm:inline-flex" href="#waitlist">Request early access <span class="arrow">→</span></a>
+          <button id="nav-toggle" type="button" aria-label="Menu" aria-expanded="false" class="v-burger md:hidden">
+            <span></span><span></span><span></span>
+          </button>
         </div>
-        <a class="v-btn v-btn--primary" href="#waitlist">Request early access <span class="arrow">→</span></a>
-      </nav>
-    </div>
+      </div>
+      <div id="nav-menu" class="v-menu hidden md:hidden">
+        <div class="v-container flex flex-col gap-1 pb-4">
+          <a class="v-navlink" href="#problem" data-nav-link>The problem</a>
+          <a class="v-navlink" href="#introducing" data-nav-link>Introducing</a>
+          <a class="v-navlink" href="#features" data-nav-link>Features</a>
+          <a class="v-navlink" href="#security" data-nav-link>Security</a>
+          <a class="v-navlink" href="#founders" data-nav-link>Founders</a>
+          <a class="v-btn v-btn--primary mt-2 w-max" href="#waitlist" data-nav-link>Request early access <span class="arrow">→</span></a>
+        </div>
+      </div>
+    </header>
 
     <main id="top">
       <slot />
@@ -69,13 +100,40 @@ import '../styles/global.css';
         background: linear-gradient(to bottom, var(--v-wash-top), var(--v-wash-bottom) 62%, var(--v-bg) 92%);
         pointer-events: none;
       }
-      .v-navwrap {
+      /* merged into the page at the very top; translucent blur bar once scrolled
+         (seedzeng.com pattern) — readable over white sections */
+      .v-header {
         position: sticky;
-        top: 14px;
+        top: 0;
         z-index: 100;
-        display: flex;
+        border-bottom: 1px solid transparent;
+        transition: background 250ms ease, border-color 250ms ease;
+      }
+      .v-header[data-scrolled],
+      .v-header.menu-open {
+        background: color-mix(in srgb, var(--v-bg) 78%, transparent);
+        -webkit-backdrop-filter: blur(14px);
+        backdrop-filter: blur(14px);
+        border-bottom-color: var(--v-hairline);
+      }
+      .v-burger {
+        display: inline-flex;
+        flex-direction: column;
         justify-content: center;
-        padding-inline: clamp(16px, 4vw, 40px);
+        gap: 5px;
+        width: 28px;
+        height: 28px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: var(--v-ink-title);
+      }
+      .v-burger span {
+        display: block;
+        height: 1.5px;
+        width: 20px;
+        background: currentColor;
+        border-radius: 1px;
       }
       .v-wordmark {
         font-family: var(--font-hand);
@@ -103,6 +161,27 @@ import '../styles/global.css';
     </style>
 
     <script>
+      // ---- nav: merged at top, translucent bar once scrolled; mobile menu ----
+      const header = document.querySelector<HTMLElement>('[data-header]');
+      if (header) {
+        const syncHeader = () => header.toggleAttribute('data-scrolled', window.scrollY > 4);
+        syncHeader();
+        addEventListener('scroll', syncHeader, { passive: true });
+        const toggle = document.getElementById('nav-toggle');
+        const menu = document.getElementById('nav-menu');
+        const closeMenu = () => {
+          menu?.classList.add('hidden');
+          header.classList.remove('menu-open');
+          toggle?.setAttribute('aria-expanded', 'false');
+        };
+        toggle?.addEventListener('click', () => {
+          const open = menu?.classList.toggle('hidden') === false;
+          header.classList.toggle('menu-open', open);
+          toggle.setAttribute('aria-expanded', String(open));
+        });
+        document.querySelectorAll('[data-nav-link]').forEach((a) => a.addEventListener('click', closeMenu));
+      }
+
       // ---- Pattern 1: one-shot reveals (IntersectionObserver → CSS transition) ----
       let ioFired = false;
       const revealIO = new IntersectionObserver(

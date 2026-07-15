@@ -23,13 +23,14 @@ import SectionHeader from './SectionHeader.astro';
           <div>
             <label class="wl-label" for="wl-email">Work email</label>
             <input class="wl-field" id="wl-email" name="email" type="email" placeholder="you@yourfirm.com" autocomplete="email" required />
-            <p class="wl-hint hidden" id="wl-email-hint">
-              Looks like a personal address — a firm email helps us verify you, but it's not required.
+            <p class="wl-field-error hidden" id="wl-email-hint">
+              Please use your firm email — personal addresses (Gmail, Yahoo, …) can't be verified.
             </p>
           </div>
           <div>
             <label class="wl-label" for="wl-firm">Firm website</label>
-            <input class="wl-field" id="wl-firm" name="firm" type="url" placeholder="https://yourfirm.com" autocomplete="url" />
+            <input class="wl-field" id="wl-firm" name="firm" type="text" placeholder="yourfirm.com" autocomplete="url" />
+            <p class="wl-field-error hidden" id="wl-firm-hint">Enter a valid website — e.g. yourfirm.com</p>
           </div>
           <div>
             <label class="wl-label" for="wl-crm">Current CRM <span class="wl-opt">(optional)</span></label>
@@ -84,10 +85,10 @@ import SectionHeader from './SectionHeader.astro';
     border-color: var(--v-brand-soft);
     box-shadow: 0 0 0 3px var(--v-brand-wash);
   }
-  .wl-hint {
+  .wl-field-error {
     margin-top: 6px;
     font-size: var(--text-xs);
-    color: var(--v-ink-hint);
+    color: #a04040;
   }
   .wl-error {
     font-size: var(--text-sm);
@@ -112,12 +113,29 @@ import SectionHeader from './SectionHeader.astro';
   const emailEl = document.getElementById('wl-email') as HTMLInputElement | null;
   const emailHint = document.getElementById('wl-email-hint');
 
-  // Soft nudge only — plenty of solo advisors legitimately run personal inboxes.
-  const PERSONAL = /@(gmail|yahoo|hotmail|outlook|icloud|aol|proton|protonmail|me|live|msn)\./i;
-  emailEl?.addEventListener('blur', () => {
-    const v = emailEl.value.trim();
-    emailHint?.classList.toggle('hidden', !(v.includes('@') && PERSONAL.test(v)));
-  });
+  const firmEl = document.getElementById('wl-firm') as HTMLInputElement | null;
+  const firmHint = document.getElementById('wl-firm-hint');
+
+  // Work email required — personal inboxes can't be verified for design partners.
+  const PERSONAL = /@(gmail|googlemail|yahoo|ymail|hotmail|outlook|live|msn|icloud|me|mac|aol|proton|protonmail|pm|hey|gmx|zoho|qq|163|126|foxmail|yandex)\.[a-z.]+$/i;
+  const emailValid = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) && !PERSONAL.test(v);
+  const checkEmail = () => {
+    const v = (emailEl?.value ?? '').trim();
+    const bad = v.length > 0 && v.includes('@') && PERSONAL.test(v);
+    emailHint?.classList.toggle('hidden', !bad);
+    return !bad;
+  };
+  emailEl?.addEventListener('blur', checkEmail);
+
+  // Firm website: accept "yourfirm.com" or full URLs; basic sanity check.
+  const SITE_RE = /^(https?:\/\/)?([a-z0-9-]+\.)+[a-z]{2,}(\/\S*)?$/i;
+  const checkFirm = () => {
+    const v = (firmEl?.value ?? '').trim();
+    const bad = v.length > 0 && !SITE_RE.test(v);
+    firmHint?.classList.toggle('hidden', !bad);
+    return !bad;
+  };
+  firmEl?.addEventListener('blur', checkFirm);
 
   form?.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -127,6 +145,18 @@ import SectionHeader from './SectionHeader.astro';
       emailEl?.focus();
       emailEl?.reportValidity?.();
       return;
+    }
+    if (!checkEmail()) {
+      emailEl?.focus();
+      return;
+    }
+    if (!checkFirm()) {
+      firmEl?.focus();
+      return;
+    }
+    // normalize the site before it's submitted
+    if (firmEl && firmEl.value.trim() && !/^https?:\/\//i.test(firmEl.value.trim())) {
+      firmEl.value = 'https://' + firmEl.value.trim();
     }
     if (submitBtn) {
       submitBtn.disabled = true;
