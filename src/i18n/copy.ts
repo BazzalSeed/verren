@@ -82,7 +82,6 @@ const en = {
       name: 'Jordan Ellis',
       sub: 'Household · $2.4M',
       updatedRest: 'Profile updated 2m ago',
-      updatedNow: 'Profile updated just now',
       signals: [
         { tag: 'Signal', text: 'Life event — new job, VP Eng' },
         { tag: 'Due', text: 'Next RMD due in 41 days' },
@@ -103,8 +102,8 @@ const en = {
       },
       {
         num: '02',
-        lead: "The big teams hired people. You got a CRM that's always out of date.",
-        body: "Mega-teams run on associates and a chief of staff — someone whose whole job is knowing everything and handling everything. Most advisors got a database that's out of sync the moment a meeting ends: it remembers nothing you don't type and does nothing you don't click.",
+        lead: 'You hired people to help. The CRM is still out of date.',
+        body: "Associates, assistants, notetakers — and still no one whose whole job is knowing everything and handling everything. The system of record stays a database that's out of sync the moment a meeting ends: it remembers nothing you don't type and does nothing you don't click.",
         stat: '41%',
         statLabel: 'of advisor time actually spent with clients',
         source: 'Kitces Research',
@@ -272,8 +271,10 @@ const en = {
       boundaryTitle: 'Verren private cloud',
       boundarySub: 'Infrastructure we control',
       nodeData: 'Your client data',
+      nodeDataSub: 'Encrypted in transit & at rest',
       linkTag: 'processed inside',
-      nodeModel: 'Our open-weight models',
+      nodeModel: 'Our models',
+      nodeModelSub: 'Open-weight · run by us',
       never: [
         { lead: 'Never sent to a third-party AI provider', rest: ' — not OpenAI, not Anthropic, not Google.' },
         { lead: 'Never used to train a model', rest: ' — your book of business stays yours.' },
@@ -409,7 +410,6 @@ const zh: Copy = {
       name: 'Jordan Ellis',
       sub: '家庭客户 · $2.4M',
       updatedRest: '档案更新于 2 分钟前',
-      updatedNow: '档案已更新',
       signals: [
         { tag: '动态', text: '职业变动——新任工程副总裁' },
         { tag: '临期', text: '下一笔 RMD 将在 41 天后到期' },
@@ -430,8 +430,8 @@ const zh: Copy = {
       },
       {
         num: '02',
-        lead: '大团队配了专人，你却只有一个永远落后的 CRM。',
-        body: '大型团队有客户经理、助理和运营人员，专门掌握所有信息、推进所有事项。多数顾问却只有一个会议结束后就开始落后的数据库：你不录入，它就不会记住；你不点击，它就不会行动。',
+        lead: '你请了人来帮忙，CRM 却还是永远过期。',
+        body: '助理、运营、会议记录工具都配齐了——却依然没有一个角色专职记住一切、打理一切。所谓的系统记录，仍是一个会议一结束就不同步的数据库：你不录入，它就不记得；你不点击，它就不行动。',
         stat: '41%',
         statLabel: '顾问真正花在客户身上的时间占比',
         source: 'Kitces Research',
@@ -595,8 +595,10 @@ const zh: Copy = {
       boundaryTitle: 'Verren 私有云环境',
       boundarySub: '我们自主管理的基础设施',
       nodeData: '你的客户数据',
+      nodeDataSub: '传输与存储全程加密',
       linkTag: '仅在环境内处理',
-      nodeModel: '我们自主部署的开放权重模型',
+      nodeModel: '我们的模型',
+      nodeModelSub: '开放权重 · 自主部署',
       never: [
         { lead: '绝不发送给第三方 AI 服务商', rest: '——包括 OpenAI、Anthropic 和 Google。' },
         { lead: '绝不用于训练模型', rest: '——你的客户关系与数据始终归你所有。' },

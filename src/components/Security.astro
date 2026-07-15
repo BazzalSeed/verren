@@ -39,9 +39,15 @@ const [s1, s2, s3] = sec.pages;
                   <div class="sec-boundary-title">{sec.cloud.boundaryTitle}</div>
                   <div class="sec-boundary-sub">{sec.cloud.boundarySub}</div>
                   <div class="sec-inside">
-                    <div class="sec-node">{sec.cloud.nodeData}</div>
+                    <div class="sec-node">
+                      <div class="sec-node-t">{sec.cloud.nodeData}</div>
+                      <div class="sec-node-s">{sec.cloud.nodeDataSub}</div>
+                    </div>
                     <div class="sec-link"><span class="sec-link-line"></span><span class="sec-link-tag">{sec.cloud.linkTag}</span><span class="sec-link-line"></span></div>
-                    <div class="sec-node">{sec.cloud.nodeModel}</div>
+                    <div class="sec-node">
+                      <div class="sec-node-t">{sec.cloud.nodeModel}</div>
+                      <div class="sec-node-s">{sec.cloud.nodeModelSub}</div>
+                    </div>
                   </div>
                 </div>
                 {sec.cloud.never.map((nv) => (
@@ -147,10 +153,11 @@ const [s1, s2, s3] = sec.pages;
 
   /* ---------- 01: the private-cloud boundary ---------- */
   .sec-boundary {
+    /* the private-cloud enclosure carries the message — tinted, not flat */
     border: 1px solid var(--v-border-moderate);
-    border-radius: 10px;
-    padding: 16px 18px;
-    background: var(--v-surface);
+    border-radius: 12px;
+    padding: 22px 24px 24px;
+    background: var(--v-brand-wash);
   }
   .sec-inside {
     display: grid;
@@ -159,13 +166,25 @@ const [s1, s2, s3] = sec.pages;
     align-items: center;
   }
   .sec-node {
-    border: 1px solid var(--v-hairline);
-    border-radius: 8px;
+    border: 1px solid var(--v-border-subtle);
+    border-radius: 10px;
     background: var(--v-card);
-    padding: 12px 14px;
-    font-size: var(--text-sm);
-    color: var(--v-ink-title);
+    padding: 18px 20px;
     text-align: center;
+    box-shadow: 0 4px 12px -4px rgba(0, 0, 0, 0.06);
+  }
+  .sec-node-t {
+    font-size: 16px;
+    letter-spacing: -0.01em;
+    color: var(--v-ink-title);
+  }
+  .sec-node-s {
+    margin-top: 6px;
+    font-family: 'DM Mono', ui-monospace, monospace;
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--v-ink-subtle);
   }
   .sec-link {
     display: flex;
@@ -181,7 +200,7 @@ const [s1, s2, s3] = sec.pages;
     height: 1px;
     background: repeating-linear-gradient(
       90deg,
-      var(--v-border-moderate) 0 6px,
+      var(--v-brand-soft) 0 6px,
       transparent 6px 12px
     );
   }
@@ -203,20 +222,21 @@ const [s1, s2, s3] = sec.pages;
     white-space: nowrap;
   }
   .sec-boundary-title {
-    font-size: var(--text-base);
+    font-size: var(--text-h4);
+    letter-spacing: -0.01em;
     color: var(--v-ink-title);
   }
   .sec-boundary-sub {
-    font-size: var(--text-xs);
+    font-size: var(--text-sm);
     color: var(--v-ink-hint);
-    margin-bottom: 14px;
+    margin-bottom: 18px;
   }
   /* two plain statements — no ambiguity, no decoration to decode */
   .sec-never {
     display: flex;
     align-items: flex-start;
     gap: 12px;
-    padding: 13px 2px 0;
+    padding: 16px 2px 0;
   }
   .sec-block {
     flex: none;
@@ -233,7 +253,7 @@ const [s1, s2, s3] = sec.pages;
     margin-top: 1px;
   }
   .sec-never-text {
-    font-size: var(--text-sm);
+    font-size: var(--text-base);
     line-height: 1.55;
     color: var(--v-ink-body);
   }
