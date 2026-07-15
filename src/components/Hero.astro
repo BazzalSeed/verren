@@ -1,0 +1,602 @@
+---
+/**
+ * Hero — lightfield home-hero register: quiet 28px H1 in a ~450px left
+ * column, live-DOM 3D card stack as the imagery (our escalation of their
+ * pre-rendered PNG collage), all floating on the gradient wash.
+ * All mock data must stay obviously fictional.
+ */
+---
+
+<section class="hero v-container">
+  <div class="hero-inner">
+    <div class="hero-copy">
+      <span class="hero-label reveal">For financial advisors &amp; RIAs</span>
+      <h1 class="reveal text-h1 text-ink-title" data-reveal-delay="60">Your AI Chief of Staff.</h1>
+      <p class="reveal mt-4 max-w-[400px] text-base text-ink-body" data-reveal-delay="120">
+        AI that remembers every client detail, preps every meeting, and handles
+        the follow-through — always with your approval.
+      </p>
+      <div class="reveal mt-5 flex flex-wrap items-center gap-2" data-reveal-delay="180">
+        <a class="v-btn v-btn--primary" href="#waitlist">Request early access <span class="arrow">→</span></a>
+        <a class="v-btn" href="#features">See how it works</a>
+      </div>
+      <p class="hero-kicker reveal" data-reveal-delay="240">
+        On models we run ourselves — client data never touches a third-party AI provider
+      </p>
+    </div>
+
+    <div class="hero-stack-outer" aria-hidden="true">
+      <div class="hero-stack-frame">
+      <div class="hero-stack" id="hero-stack">
+        <!-- Card: back — the book (client list view; all data fictional) -->
+        <div class="hero-card hero-card--back">
+          <div class="frame-bar">
+            <span class="frame-dot"></span><span class="frame-dot"></span><span class="frame-dot"></span>
+            <span class="frame-tabs"><i class="on"></i><i></i><i></i></span>
+          </div>
+          <div class="frame-body">
+            <div class="frame-side">
+              <span class="on"></span><span></span><span></span><span></span><span></span>
+            </div>
+            <div class="frame-main">
+              <div class="book-head">
+                <span class="book-title">Your book</span>
+                <span class="book-meta">128 households · all current</span>
+              </div>
+              <div class="book-row">
+                <span class="book-avatar">PN</span>
+                <span class="book-cell">
+                  <span class="book-name">Priya Natarajan</span>
+                  <span class="book-note">Follow-up drafted after Tuesday's review</span>
+                </span>
+                <span class="book-tag book-tag--ok">Prepped</span>
+              </div>
+              <div class="book-row">
+                <span class="book-avatar">SO</span>
+                <span class="book-cell">
+                  <span class="book-name">Sam Okafor</span>
+                  <span class="book-note">Inheritance mention — added to profile</span>
+                </span>
+                <span class="book-tag">Signal</span>
+              </div>
+              <div class="book-row">
+                <span class="book-avatar">DW</span>
+                <span class="book-cell">
+                  <span class="book-name">Dana Whitfield</span>
+                  <span class="book-note">Quiet 94 days — check-in ready for approval</span>
+                </span>
+                <span class="book-tag">Outreach</span>
+              </div>
+              <div class="book-row">
+                <span class="book-avatar">MT</span>
+                <span class="book-cell">
+                  <span class="book-name">Miguel Torres</span>
+                  <span class="book-note">RMD due in 12 days</span>
+                </span>
+                <span class="book-tag">Due</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card: mid — pending approval + drafted email -->
+        <div class="hero-card hero-card--approval">
+          <div class="approval-row">
+            <div>
+              <div class="approval-text">Book follow-up — Thu 10:00</div>
+              <div class="approval-sub" data-result="On your calendar · invite sent to Jordan">Suggested from today's meeting notes</div>
+            </div>
+            <span class="approve-btn">✓ Approve</span>
+          </div>
+          <div class="email-draft">
+            <div class="label">Drafted follow-up</div>
+            <div class="snippet">“Hi Jordan — great catching up…”</div>
+          </div>
+        </div>
+
+        <!-- Card: front — client profile -->
+        <div class="hero-card hero-card--profile">
+          <div class="card-eyebrow">Household</div>
+          <div class="card-name">Jordan Ellis</div>
+          <div class="card-sub">Household · $2.4M</div>
+          <div class="card-updated"><span class="dot v-live-dot"></span> <span class="card-updated-text">Profile updated 2m ago</span></div>
+          <div class="card-divider"></div>
+          <div class="card-signal"><span class="tag">Signal</span><span>Life event — new job, VP Eng</span></div>
+          <div class="card-signal"><span class="tag">Due</span><span>Next RMD due in 41 days</span></div>
+        </div>
+      </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    /* fill the first viewport: copy + collage vertically centered under the nav */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: calc(100svh - 60px);
+    /* floor clears the sticky nav pill (14px offset + ~40px pill + breathing room) */
+    padding-top: clamp(84px, 6vw, 96px);
+    padding-bottom: 48px;
+    margin-bottom: clamp(48px, 7vw, 110px);
+  }
+  .hero-inner {
+    /* stacked: copy on its own line, the collage gets the full width below */
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: clamp(48px, 6vw, 80px);
+  }
+  .hero-kicker {
+    margin-top: 22px;
+    font-family: 'DM Mono', ui-monospace, monospace;
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--v-ink-subtle);
+    max-width: 420px;
+    line-height: 1.6;
+  }
+  .hero-label {
+    display: block;
+    font-family: 'DM Mono', ui-monospace, monospace;
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--v-ink-hint);
+    margin-bottom: 14px;
+  }
+  h1 {
+    text-wrap: balance;
+  }
+
+  /* ---------- card stack ----------
+     Fixed 760×460 design canvas, scaled fluidly to the column it sits in —
+     the SAME collage (and animation) on every screen size, just smaller. */
+  .hero-stack-frame {
+    /* --s (0–1 number) set by the ResizeObserver below; scale() rejects
+       length-derived calc values, so this can't be pure-CSS cq math */
+    --s: 1;
+    position: relative;
+    height: calc(460px * var(--s));
+    perspective: 1800px;
+  }
+  .hero-stack {
+    /* tunables */
+    --tilt: 1;
+    --card-radius: 14px;
+    --card-shadow-a: 0.18;
+    --cardA-rz: -3.5deg; /* back frame */
+    --cardB-rz: -4.5deg; /* approval */
+    --cardC-rz: -3deg;   /* profile */
+
+    /* absolute: the unscaled 760px layout box must not size the grid column */
+    position: absolute;
+    top: 0;
+    /* centered when it fits; when upscaled past the column, bleed RIGHT only
+       (never into the copy) — lightfield's collage bleeds the same way */
+    left: max(0px, calc((100% - 760px * var(--s)) / 2));
+    width: 760px;
+    height: 460px;
+    transform: scale(var(--s));
+    transform-origin: top left;
+    transform-style: flat; /* siblings stack by z-index — rotated planes never intersect */
+  }
+  .hero-card {
+    position: absolute;
+    border-radius: var(--card-radius);
+    background: var(--v-card);
+    border: 1px solid var(--v-border-subtle);
+    box-shadow:
+      0 25px 50px -12px rgba(0, 0, 0, var(--card-shadow-a)),
+      0 8px 16px -4px rgba(0, 0, 0, calc(var(--card-shadow-a) * 0.44));
+    /* visible by default; entrance = JS-toggled transition (webview-safe) */
+    opacity: 1;
+    filter: none;
+    transition:
+      opacity 1.4s cubic-bezier(0.16, 1, 0.3, 1),
+      filter 1.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .hero-card.pre-anim {
+    opacity: 0;
+    filter: blur(6px);
+  }
+  .hero-card--back { transition-delay: 0.15s; }
+  .hero-card--profile { transition-delay: 0.4s; }
+  .hero-card--approval { transition-delay: 0.75s; }
+
+  /* back — app frame */
+  .hero-card--back {
+    width: min(640px, 96%);
+    height: 82%;
+    right: 0;
+    bottom: -2%;
+    z-index: 1;
+    transform: rotateX(calc(var(--tilt) * 6deg)) rotateY(calc(var(--tilt) * -8deg)) rotateZ(var(--cardA-rz));
+    padding: 20px 24px;
+  }
+  .frame-bar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding-bottom: 13px;
+    border-bottom: 1px solid var(--v-hairline);
+  }
+  .frame-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--v-ink-faint);
+  }
+  .frame-tabs { display: flex; gap: 8px; margin-left: 18px; }
+  .frame-tabs i {
+    width: 54px; height: 8px; border-radius: 4px;
+    background: var(--v-hairline);
+  }
+  .frame-tabs i.on { background: var(--v-border-moderate); }
+  .frame-body {
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    gap: 20px;
+    padding-top: 15px;
+    height: calc(100% - 34px);
+  }
+  .frame-side { display: flex; flex-direction: column; gap: 10px; }
+  .frame-side span {
+    height: 9px; border-radius: 4px;
+    background: var(--v-hairline);
+  }
+  .frame-side span.on { background: var(--v-border-moderate); width: 86%; }
+  .frame-side span:nth-child(2) { width: 72%; }
+  .frame-side span:nth-child(3) { width: 80%; }
+  .frame-side span:nth-child(4) { width: 64%; }
+  .frame-side span:nth-child(5) { width: 76%; }
+  .frame-main { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+  .book-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    padding-bottom: 8px;
+  }
+  .book-title {
+    font-size: var(--text-sm);
+    color: var(--v-ink-title);
+  }
+  .book-meta {
+    font-size: 10px;
+    color: var(--v-ink-hint);
+  }
+  .book-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border: 1px solid var(--v-hairline);
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.015);
+    min-width: 0;
+  }
+  .book-avatar {
+    flex: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--v-fill);
+    color: var(--v-ink-sub);
+    font-size: 8px;
+    letter-spacing: 0.02em;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .book-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 0;
+  }
+  .book-name {
+    font-size: var(--text-xs);
+    color: var(--v-ink-title);
+    white-space: nowrap;
+  }
+  .book-note {
+    font-size: 10px;
+    color: var(--v-ink-body);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .book-tag {
+    margin-left: auto;
+    flex: none;
+    font-family: 'DM Mono', ui-monospace, monospace;
+    font-size: 8px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 3px 7px;
+    border-radius: var(--radius-sm);
+    background: var(--v-brand-wash);
+    color: var(--v-brand);
+  }
+  .book-tag--ok {
+    background: #e9f6ee;
+    color: #2e7d4f;
+  }
+  @media (prefers-color-scheme: dark) {
+    .book-tag--ok {
+      background: rgba(76, 175, 109, 0.15);
+      color: #7fd99b;
+    }
+  }
+
+  /* mid — approval */
+  .hero-card--approval {
+    width: min(320px, 78%);
+    right: 4%;
+    bottom: -8%;
+    z-index: 2;
+    transform: rotateX(calc(var(--tilt) * 5deg)) rotateY(calc(var(--tilt) * -4deg)) rotateZ(var(--cardB-rz)) translateZ(30px);
+    padding: 16px 18px 18px;
+  }
+  .approval-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .approval-text {
+    font-size: var(--text-sm);
+    color: var(--v-ink-title);
+  }
+  .approval-sub {
+    font-size: 11px;
+    color: var(--v-ink-hint);
+    margin-top: 2px;
+  }
+  .approve-btn {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    padding: 5px 9px;
+    border-radius: var(--radius-md);
+    background: #e9f6ee;
+    color: #2e7d4f;
+    border: 1px solid rgba(46, 125, 79, 0.18);
+  }
+  @media (prefers-color-scheme: dark) {
+    .approve-btn {
+      background: rgba(76, 175, 109, 0.15);
+      color: #7fd99b;
+      border-color: rgba(76, 175, 109, 0.25);
+    }
+  }
+  .email-draft {
+    border-radius: 8px;
+    background: var(--v-surface);
+    border: 1px solid var(--v-hairline);
+    padding: 11px 13px;
+  }
+  .email-draft .label {
+    font-family: 'DM Mono', ui-monospace, monospace;
+    font-size: 9px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--v-ink-subtle);
+    margin-bottom: 5px;
+  }
+  .email-draft .snippet {
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--v-ink-sub);
+    font-style: italic;
+  }
+
+  /* front — profile */
+  .hero-card--profile {
+    width: min(280px, 72%);
+    left: 2%;
+    top: 2%;
+    z-index: 3;
+    transform: rotateX(calc(var(--tilt) * 4deg)) rotateY(calc(var(--tilt) * 6deg)) rotateZ(var(--cardC-rz)) translateZ(60px);
+    padding: 16px 18px 18px;
+  }
+  .card-eyebrow {
+    font-family: 'DM Mono', ui-monospace, monospace;
+    font-size: 9px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--v-ink-subtle);
+    margin-bottom: 7px;
+  }
+  .card-name {
+    font-size: var(--text-h3);
+    letter-spacing: -0.015em;
+    color: var(--v-ink-title);
+    margin-bottom: 2px;
+  }
+  .card-sub {
+    font-size: var(--text-xs);
+    color: var(--v-ink-hint);
+    margin-bottom: 12px;
+  }
+  .card-updated {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--v-ink-subtle);
+    margin-bottom: 12px;
+  }
+  .card-updated .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: #4caf6d;
+  }
+  .card-divider {
+    height: 1px;
+    background: var(--v-hairline);
+    margin: 10px 0;
+  }
+  .card-signal {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: var(--text-xs);
+    line-height: 1.45;
+    margin-bottom: 9px;
+    color: var(--v-ink-sub);
+  }
+  .card-signal .tag {
+    flex: none;
+    font-family: 'DM Mono', ui-monospace, monospace;
+    font-size: 9px;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    border-radius: var(--radius-sm);
+    background: var(--v-brand-wash);
+    color: var(--v-brand);
+    margin-top: 1px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-card { transition: none; opacity: 1 !important; filter: none !important; }
+  }
+</style>
+
+<script>
+  // Fluid canvas scale: the 760×460 collage shrinks to fit its column on any
+  // screen — same composition and animation everywhere, just smaller.
+  (function () {
+    const outer = document.querySelector('.hero-stack-outer') as HTMLElement | null;
+    const frame = document.querySelector('.hero-stack-frame') as HTMLElement | null;
+    if (!outer || !frame) return;
+    const apply = () => {
+      // allow a gentle upscale on large screens — everything is DOM/vector
+      const s = Math.min(1.3, outer.clientWidth / 760);
+      frame.style.setProperty('--s', s.toFixed(4));
+    };
+    apply();
+    if ('ResizeObserver' in window) {
+      new ResizeObserver(apply).observe(outer);
+    } else {
+      addEventListener('resize', apply, { passive: true });
+    }
+  })();
+
+  // Entrance fade-blur (progressive enhancement; cards visible by default).
+  (function () {
+    if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const cards = document.querySelectorAll('.hero-card');
+    try {
+      cards.forEach((c) => c.classList.add('pre-anim'));
+      void document.body.offsetHeight; // force reflow so the pre state paints
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          cards.forEach((c) => c.classList.remove('pre-anim'));
+        });
+      });
+    } catch (_) {}
+    setTimeout(() => {
+      cards.forEach((c) => c.classList.remove('pre-anim'));
+    }, 3000);
+  })();
+
+  // Live 3D: JS-composed transforms (rAF, with timer fallback for webviews that
+  // freeze rAF). Cards float on their own phase; whole stack parallax-tilts
+  // toward the pointer. Honors the CSS tunables (--tilt, --cardA/B/C-rz).
+  (function () {
+    if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const stack = document.getElementById('hero-stack');
+    if (!stack) return;
+    const conf = [
+      { sel: '.hero-card--back',     rx: 6, ry: -8, rz: '--cardA-rz', tz: 0,  amp: 5, speed: 0.55, phase: 0.0 },
+      { sel: '.hero-card--approval', rx: 5, ry: -4, rz: '--cardB-rz', tz: 30, amp: 9, speed: 0.80, phase: 2.1 },
+      { sel: '.hero-card--profile',  rx: 4, ry:  6, rz: '--cardC-rz', tz: 60, amp: 7, speed: 0.65, phase: 4.2 },
+    ]
+      .map((c) => ({ ...c, el: stack.querySelector(c.sel) as HTMLElement | null }))
+      .filter((c) => c.el);
+    let mx = 0, my = 0, tx = 0, ty = 0;
+    window.addEventListener(
+      'mousemove',
+      (e) => {
+        const r = stack.getBoundingClientRect();
+        tx = Math.max(-1, Math.min(1, ((e.clientX - r.left) / r.width) * 2 - 1));
+        ty = Math.max(-1, Math.min(1, ((e.clientY - r.top) / r.height) * 2 - 1));
+      },
+      { passive: true }
+    );
+    let frames = 0;
+    let usingTimer = false;
+    function frame(now: number) {
+      const t = now / 1000;
+      mx += (tx - mx) * 0.06;
+      my += (ty - my) * 0.06;
+      const tilt = parseFloat(getComputedStyle(stack!).getPropertyValue('--tilt')) || 1;
+      for (const c of conf) {
+        const floatY = Math.sin(t * c.speed + c.phase) * c.amp;
+        const rx = tilt * c.rx - my * 2.5;
+        const ry = tilt * c.ry + mx * 3.5;
+        c.el!.style.transform =
+          `rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg)` +
+          ` rotateZ(var(${c.rz})) translateZ(${c.tz}px) translateY(${floatY.toFixed(2)}px)`;
+      }
+      if (!usingTimer) requestAnimationFrame(counted);
+    }
+    const counted = (now: number) => {
+      frames++;
+      frame(now);
+    };
+    requestAnimationFrame(counted);
+    setTimeout(() => {
+      if (frames < 2) {
+        usingTimer = true;
+        setInterval(() => frame(performance.now()), 33);
+      }
+    }, 500);
+  })();
+</script>
+
+<script>
+  // Liveness in the hero cards — the same one-way approve → outcome → reset
+  // rhythm as the features visuals, plus a cycling highlight on the book rows.
+  (() => {
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    // approval card: approve once, show the result, hold, reset
+    const btn = document.querySelector<HTMLElement>('.hero-card--approval .approve-btn');
+    const sub = document.querySelector<HTMLElement>('.hero-card--approval .approval-sub');
+    if (btn && sub) {
+      const btnLabel = btn.textContent ?? '';
+      const rest = sub.textContent ?? '';
+      setInterval(() => {
+        btn.classList.add('fv-clicked');
+        setTimeout(() => {
+          btn.classList.remove('fv-clicked');
+          btn.classList.add('fv-done');
+          btn.textContent = '✓ Approved';
+          sub.textContent = sub.dataset.result ?? rest;
+        }, 380);
+        setTimeout(() => {
+          btn.classList.remove('fv-done');
+          btn.textContent = btnLabel;
+          sub.textContent = rest;
+        }, 4200);
+      }, 6500);
+    }
+
+    // profile card: timestamp breathes
+    const updated = document.querySelector<HTMLElement>('.card-updated-text');
+    if (updated) {
+      let i = 0;
+      setInterval(() => {
+        updated.textContent = i % 2 ? 'Profile updated 2m ago' : 'Profile updated just now';
+        i++;
+      }, 3400);
+    }
+
+  })();
+</script>

@@ -1,0 +1,708 @@
+---
+/**
+ * Features — pinned three-page showcase (shared [data-vpin] driver).
+ * Each page's visual is a FLOW diagram, not a fake UI screenshot:
+ *   01 — sources (email/meeting/note/doc) light up and feed the profile
+ *   02 — the book as a list; rows expand to show the full briefing inside
+ *   03 — approval queue → items move to a "Done · logged" ledger
+ * All animation is setInterval-driven (webview-safe), fully rendered at
+ * rest, off under reduced-motion. All mock data obviously fictional.
+ */
+import SectionHeader from './SectionHeader.astro';
+---
+
+<section id="features" class="pt-24 md:pt-32">
+  <div class="vpin" data-vpin>
+    <div class="vpin-sticky">
+      <div class="vpin-head">
+        <SectionHeader chip="Features" lead="What a great chief of staff does.">
+          <div class="vpin-index" slot="aside" aria-hidden="true">
+            <span class="vpin-num">01</span>
+            <span class="vpin-num">02</span>
+            <span class="vpin-num">03</span>
+          </div>
+        </SectionHeader>
+      </div>
+
+      <!-- ============ 01 — The data enters itself ============ -->
+      <div class="vpin-page">
+        <div class="v-container w-full">
+          <div class="v-grid items-center gap-y-10">
+            <div class="col-span-4 md:col-span-4">
+              <div class="fp-num">01</div>
+              <h3 class="mt-2 max-w-[330px] text-h3 text-ink-title">Profiles that keep themselves current</h3>
+              <p class="mt-3 max-w-[330px] text-base text-ink-body">
+                Email, meetings, texts, documents — captured automatically, from
+                every source. Verren reads it all and writes what matters to the
+                profile: household changes, goals, concerns, commitments. You type
+                nothing.
+              </p>
+            </div>
+            <div class="col-span-4 md:col-span-7 md:col-start-6">
+              <div class="fp-visual v-tilt fp-flow" aria-hidden="true">
+                <div class="flow-sources">
+                  <div class="flow-label">Sources — every channel</div>
+                  <div class="flow-src">
+                    <span class="flow-kind">Email</span>
+                    <span class="flow-t">Re: 529 plan for Maya</span>
+                  </div>
+                  <div class="flow-src">
+                    <span class="flow-kind">Meeting</span>
+                    <span class="flow-t">Q3 review — the Ellises</span>
+                  </div>
+                  <div class="flow-src">
+                    <span class="flow-kind">Text</span>
+                    <span class="flow-t">Jordan: “new comp package came through…”</span>
+                  </div>
+                  <div class="flow-src">
+                    <span class="flow-kind">Doc</span>
+                    <span class="flow-t">Ellis_trust_amendment.pdf</span>
+                  </div>
+                  <div class="flow-foot">Four channels · one household</div>
+                </div>
+                <div class="flow-arrow">
+                  <span class="flow-arrow-line"></span>
+                  <span class="flow-arrow-tag">Verren reads &amp; updates</span>
+                  <span class="flow-arrow-line"></span>
+                </div>
+                <div class="flow-profile">
+                  <div class="fprof-eyebrow">Household profile</div>
+                  <div class="fprof-name">Jordan Ellis</div>
+                  <div class="fprof-sub">Household · $2.4M</div>
+                  <div class="fprof-divider"></div>
+                  <div class="flow-p-row"><span class="fpv-chip">Goal</span> 529 for Maya — start before she turns 3</div>
+                  <div class="flow-p-row"><span class="fpv-chip">Life event</span> New role, VP Eng — equity vests quarterly</div>
+                  <div class="flow-p-row"><span class="fpv-chip">Comp</span> New package — equity refresh confirmed</div>
+                  <div class="flow-p-row"><span class="fpv-chip">Update</span> Trust beneficiary changed</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ 02 — It knows your book ============ -->
+      <div class="vpin-page">
+        <div class="v-container w-full">
+          <div class="v-grid items-center gap-y-10">
+            <div class="col-span-4 md:col-span-4">
+              <div class="fp-num">02</div>
+              <h3 class="mt-2 max-w-[330px] text-h3 text-ink-title">It knows your book — and tells you what matters</h3>
+              <p class="mt-3 max-w-[330px] text-base text-ink-body">
+                Every client, current. Open anyone and you're fully briefed — and
+                what you'd otherwise miss gets surfaced: a job change, an inheritance
+                mention, an RMD coming due, a good client gone quiet.
+              </p>
+            </div>
+            <div class="col-span-4 md:col-span-7 md:col-start-6">
+              <div class="fp-visual v-tilt fp-book" aria-hidden="true">
+                <div class="fpv-head">
+                  <span class="fpv-title">Your book</span>
+                  <span class="fpv-meta">128 households · all current</span>
+                </div>
+                <div class="book2-row">
+                  <div class="book2-line">
+                    <span class="book2-name">Jordan Ellis</span>
+                    <span class="fpv-chip chip-current">Current</span>
+                  </div>
+                  <div class="book2-detail">
+                    <div class="book2-sec">Profile — kept current for you</div>
+                    <div class="book2-facts">
+                      <span class="book2-fact"><span class="fpv-chip">Goal</span> 529 for Maya</span>
+                      <span class="book2-fact"><span class="fpv-chip">Due</span> RMD in 41 days</span>
+                      <span class="book2-fact"><span class="fpv-chip">Life event</span> New role, VP Eng</span>
+                    </div>
+                    <div class="book2-sec">Meeting brief</div>
+                    <div class="book2-brief">New role (VP Eng) starts in June — equity vests quarterly. Maya's 529 still open from March. RMD on the inherited IRA due in 41 days.</div>
+                  </div>
+                </div>
+                <div class="book2-row">
+                  <div class="book2-line">
+                    <span class="book2-name">Priya Natarajan</span>
+                    <span class="fpv-chip chip-prospect">Prospect</span>
+                  </div>
+                  <div class="book2-detail">
+                    <div class="book2-sec">Profile — kept current for you</div>
+                    <div class="book2-facts">
+                      <span class="book2-fact"><span class="fpv-chip">Source</span> Referral — Sam Okafor</span>
+                      <span class="book2-fact"><span class="fpv-chip">Goal</span> Equity windfall planning</span>
+                      <span class="book2-fact"><span class="fpv-chip">Next</span> Thu 2:00 intro</span>
+                    </div>
+                    <div class="book2-sec">Meeting brief</div>
+                    <div class="book2-brief">First meeting Thursday — intro through Sam Okafor. Prepped: background, likely goals, and talking points, before she walks in the door.</div>
+                  </div>
+                </div>
+                <div class="book2-row">
+                  <div class="book2-line">
+                    <span class="book2-name">Dana Whitfield</span>
+                    <span class="fpv-chip chip-risk">At risk</span>
+                  </div>
+                  <div class="book2-detail">
+                    <div class="book2-sec">Profile — kept current for you</div>
+                    <div class="book2-facts">
+                      <span class="book2-fact"><span class="fpv-chip">Signal</span> Quiet 94 days</span>
+                      <span class="book2-fact"><span class="fpv-chip">Update</span> Trust amended</span>
+                      <span class="book2-fact"><span class="fpv-chip">Ready</span> Check-in drafted</span>
+                    </div>
+                    <div class="book2-sec">Meeting brief</div>
+                    <div class="book2-brief">Quiet 94 days — a good client drifting. No touchpoint since the trust amendment; a check-in is drafted and waiting on your go.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ 03 — It does the work ============ -->
+      <div class="vpin-page">
+        <div class="v-container w-full">
+          <div class="v-grid items-center gap-y-10">
+            <div class="col-span-4 md:col-span-4">
+              <div class="fp-num">03</div>
+              <h3 class="mt-2 max-w-[330px] text-h3 text-ink-title">It does the work — with your approval</h3>
+              <p class="mt-3 max-w-[330px] text-base text-ink-body">
+                Books the follow-up the moment one is promised. Drafts the email in
+                your voice. Runs the outreach. Every action waits for your go — then
+                lands in a ledger your compliance officer can read.
+              </p>
+            </div>
+            <div class="col-span-4 md:col-span-7 md:col-start-6">
+              <div class="fp-visual v-tilt fp-appr" aria-hidden="true">
+                <div class="appr-col appr-queue">
+                  <div class="flow-label">
+                    Waiting on your go
+                    <span class="appr-count">3 pending</span>
+                  </div>
+                  <div class="appr-item">
+                    <span class="appr-t">Book follow-up — Jordan Ellis</span>
+                    <span class="fpv-approve">✓ Approve</span>
+                  </div>
+                  <div class="appr-item">
+                    <span class="appr-t">Send follow-up — Priya Natarajan</span>
+                    <span class="fpv-approve">✓ Approve</span>
+                  </div>
+                  <div class="appr-item">
+                    <span class="appr-t">Check in — 3 quiet clients</span>
+                    <span class="fpv-approve">✓ Approve</span>
+                  </div>
+                </div>
+                <div class="appr-col appr-done">
+                  <div class="flow-label">Done · logged</div>
+                  <div class="adone-row">✓ Meeting booked — Thu 10:00, invite sent</div>
+                  <div class="adone-row">✓ Email sent — in your voice, from your address</div>
+                  <div class="adone-row">✓ 3 check-ins scheduled — tomorrow 9:00</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .fp-num {
+    font-family: 'DM Mono', ui-monospace, monospace;
+    font-size: var(--text-xs);
+    color: var(--v-ink-subtle);
+  }
+
+  /* ---------- shared visual chrome ---------- */
+  .fp-visual {
+    border-radius: 14px;
+    background: var(--v-card);
+    border: 1px solid var(--v-border-subtle);
+    box-shadow:
+      0 25px 50px -12px rgba(0, 0, 0, 0.1),
+      0 8px 16px -4px rgba(0, 0, 0, 0.05);
+    padding: 22px 24px;
+  }
+  .fpv-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    padding-bottom: 13px;
+    border-bottom: 1px solid var(--v-hairline);
+    margin-bottom: 8px;
+  }
+  .fpv-title {
+    font-size: var(--text-base);
+    letter-spacing: -0.01em;
+    color: var(--v-ink-title);
+  }
+  .fpv-meta {
+    font-size: var(--text-xs);
+    color: var(--v-ink-hint);
+  }
+  .fpv-chip {
+    flex: none;
+    font-family: 'DM Mono', ui-monospace, monospace;
+    font-size: 9px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 3px 7px;
+    border-radius: var(--radius-sm);
+    background: var(--v-brand-wash);
+    color: var(--v-brand);
+  }
+  .fpv-chip.chip-current {
+    background: #e9f6ee;
+    color: #2e7d4f;
+  }
+  .fpv-chip.chip-risk {
+    background: rgba(216, 138, 32, 0.14);
+    color: #a06008;
+  }
+  @media (prefers-color-scheme: dark) {
+    .fpv-chip.chip-current {
+      background: rgba(76, 175, 109, 0.15);
+      color: #7fd99b;
+    }
+    .fpv-chip.chip-risk {
+      background: rgba(216, 138, 32, 0.18);
+      color: #e0a24c;
+    }
+  }
+
+  /* the extraction seam "works" while a transfer is in flight */
+  @keyframes v-working {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.35; }
+  }
+  .flow-arrow-tag {
+    transition: color 300ms ease;
+  }
+  .flow-arrow-tag.working {
+    color: var(--v-brand);
+    animation: v-working 0.9s ease-in-out infinite;
+  }
+
+  .flow-label {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    font-family: 'DM Mono', ui-monospace, monospace;
+    font-size: 9px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--v-ink-subtle);
+    margin-bottom: 10px;
+  }
+  .flow-foot {
+    margin-top: 12px;
+    font-family: 'DM Mono', ui-monospace, monospace;
+    font-size: 9px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--v-ink-subtle);
+  }
+
+  /* ---------- 01: sources → profile ---------- */
+  .fp-flow {
+    display: grid;
+    grid-template-columns: 1fr auto 1.2fr;
+    gap: 16px;
+    align-items: stretch;
+  }
+  .flow-src {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 9px 11px;
+    border: 1px solid var(--v-hairline);
+    border-radius: 8px;
+    margin-bottom: 8px;
+    transition: border-color 400ms ease, background 400ms ease;
+  }
+  .flow-src.on {
+    border-color: var(--v-brand-soft);
+    background: var(--v-brand-wash);
+  }
+  .flow-kind {
+    font-family: 'DM Mono', ui-monospace, monospace;
+    font-size: 9px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--v-ink-subtle);
+  }
+  .flow-t {
+    font-size: var(--text-xs);
+    color: var(--v-ink-title);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .flow-arrow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .flow-arrow-line {
+    width: 1px;
+    flex: 1;
+    background: var(--v-border-moderate);
+  }
+  .flow-arrow-tag {
+    font-family: 'DM Mono', ui-monospace, monospace;
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--v-ink-hint);
+    writing-mode: vertical-rl;
+  }
+  .flow-live {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    text-transform: none;
+    letter-spacing: 0;
+    font-family: var(--font-sans);
+    font-size: var(--text-xs);
+    color: var(--v-ink-hint);
+  }
+  .flow-live .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #4caf6d;
+  }
+  .flow-profile {
+    border: 1px solid var(--v-border-subtle);
+    border-radius: 10px;
+    background: var(--v-surface);
+    padding: 16px 18px;
+    align-self: center;
+  }
+  .fprof-eyebrow {
+    font-family: 'DM Mono', ui-monospace, monospace;
+    font-size: 9px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--v-ink-subtle);
+    margin-bottom: 7px;
+  }
+  .fprof-name {
+    font-size: var(--text-h3);
+    letter-spacing: -0.015em;
+    color: var(--v-ink-title);
+  }
+  .fprof-sub {
+    font-size: var(--text-xs);
+    color: var(--v-ink-hint);
+    margin-top: 2px;
+  }
+  .fprof-divider {
+    height: 1px;
+    background: var(--v-hairline);
+    margin: 12px 0 4px;
+  }
+  .flow-p-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: var(--text-xs);
+    color: var(--v-ink-title);
+    padding: 8px 2px;
+    border-bottom: 1px solid var(--v-hairline);
+    /* rows are "not yet written" until their source flows in */
+    opacity: 0.25;
+    transition: opacity 500ms ease, background 500ms ease;
+  }
+  .flow-p-row.written {
+    opacity: 1;
+  }
+  .flow-p-row.landing {
+    background: var(--v-brand-wash);
+    border-radius: 6px;
+  }
+
+  /* ---------- 02: the book, rows expand into briefings ---------- */
+  /* fixed height: the accordion animates INSIDE the card, so the page never jumps */
+  .fp-book {
+    height: 470px;
+    overflow: hidden;
+  }
+  @media (max-width: 899px) {
+    .fp-book {
+      height: auto;
+    }
+  }
+  .book2-sec {
+    font-family: 'DM Mono', ui-monospace, monospace;
+    font-size: 9px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--v-ink-subtle);
+    margin: 10px 0 8px;
+  }
+  .book2-row {
+    border-bottom: 1px solid var(--v-hairline);
+  }
+  .book2-line {
+    transition: background 250ms ease;
+  }
+  .book2-line.clicking {
+    background: var(--v-fill);
+    border-radius: 6px;
+  }
+  .book2-line {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 2px;
+  }
+  .book2-name {
+    font-size: var(--text-sm);
+    color: var(--v-ink-title);
+  }
+  .book2-detail {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 600ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .book2-row.open .book2-detail {
+    max-height: 280px;
+  }
+  .book2-row.open .book2-line {
+    padding-bottom: 6px;
+  }
+  .book2-facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 14px;
+    margin: 0 0 12px;
+  }
+  .book2-fact {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: var(--text-xs);
+    color: var(--v-ink-sub);
+    white-space: nowrap;
+  }
+  .book2-brief {
+    font-size: var(--text-xs);
+    line-height: 1.55;
+    color: var(--v-ink-sub);
+    background: var(--v-surface);
+    border: 1px solid var(--v-hairline);
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin: 0 0 10px;
+  }
+
+  /* ---------- 03: approve → done ledger ---------- */
+  .fp-appr {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  .appr-col:first-child {
+    border-right: 1px solid var(--v-hairline);
+    padding-right: 20px;
+  }
+  .appr-count {
+    text-transform: none;
+    letter-spacing: 0;
+    font-family: var(--font-sans);
+    font-size: var(--text-xs);
+    color: var(--v-ink-hint);
+  }
+  .appr-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 2px;
+    border-bottom: 1px solid var(--v-hairline);
+    transition: opacity 450ms ease, transform 450ms ease, background 400ms ease;
+    border-radius: 6px;
+  }
+  .appr-item.fv-active {
+    background: var(--v-fill);
+  }
+  /* approved items stay put — just crossed off (no layout motion) */
+  .appr-item.crossed .appr-t {
+    text-decoration: line-through;
+    text-decoration-color: var(--v-ink-subtle);
+    color: var(--v-ink-subtle);
+  }
+  .appr-t {
+    font-size: var(--text-xs);
+    color: var(--v-ink-title);
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .fpv-approve {
+    flex: none;
+    font-size: 11px;
+    padding: 4px 8px;
+    border-radius: var(--radius-md);
+    background: #e9f6ee;
+    color: #2e7d4f;
+    border: 1px solid rgba(46, 125, 79, 0.18);
+    transition: transform 200ms ease, background 300ms ease, color 300ms ease;
+  }
+  @media (prefers-color-scheme: dark) {
+    .fpv-approve {
+      background: rgba(76, 175, 109, 0.15);
+      color: #7fd99b;
+      border-color: rgba(76, 175, 109, 0.25);
+    }
+  }
+  .adone-row {
+    font-size: var(--text-xs);
+    color: var(--v-ink-sub);
+    padding: 10px 2px;
+    border-bottom: 1px solid var(--v-hairline);
+    opacity: 0;
+    transition: opacity 500ms ease;
+  }
+  .adone-row.show {
+    opacity: 1;
+    color: var(--v-ink-title);
+  }
+
+  /* narrow screens: flows stack vertically */
+  @media (max-width: 899px) {
+    .fp-flow {
+      grid-template-columns: 1fr;
+    }
+    .flow-arrow {
+      flex-direction: row;
+    }
+    .flow-arrow-line {
+      height: 1px;
+      width: auto;
+      flex: 1;
+    }
+    .flow-arrow-tag {
+      writing-mode: horizontal-tb;
+    }
+    .fp-appr {
+      grid-template-columns: 1fr;
+    }
+    .appr-col:first-child {
+      border-right: none;
+      padding-right: 0;
+      border-bottom: 1px solid var(--v-hairline);
+      padding-bottom: 16px;
+      margin-bottom: 4px;
+    }
+  }
+</style>
+
+<script>
+  // Flow animations — each visual demonstrates its feature's actual flow.
+  // setInterval-driven (webview-safe); resting markup is complete without JS.
+  (() => {
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    // ---- 01: a source lights up → its extraction gets WRITTEN to the profile ----
+    document.querySelectorAll('.fp-flow').forEach((visual) => {
+      const srcs = Array.from(visual.querySelectorAll<HTMLElement>('.flow-src'));
+      const rows = Array.from(visual.querySelectorAll<HTMLElement>('.flow-p-row'));
+      const liveText = visual.querySelector<HTMLElement>('.flow-live-text');
+      const tag = visual.querySelector<HTMLElement>('.flow-arrow-tag');
+      let step = 0;
+      setInterval(() => {
+        if (step < srcs.length) {
+          srcs.forEach((s) => s.classList.remove('on'));
+          srcs[step].classList.add('on');
+          tag?.classList.add('working');
+          const row = rows[step];
+          setTimeout(() => {
+            row?.classList.add('written', 'landing');
+            const chip = row?.querySelector('.fpv-chip');
+            chip?.classList.add('fv-chip-pop');
+            setTimeout(() => chip?.classList.remove('fv-chip-pop'), 500);
+            if (liveText) liveText.textContent = 'updated just now';
+            setTimeout(() => {
+              row?.classList.remove('landing');
+              tag?.classList.remove('working');
+              if (liveText) liveText.textContent = 'up to date';
+            }, 900);
+          }, 650);
+          step++;
+        } else {
+          // hold one beat with everything written, then start a fresh day
+          srcs.forEach((s) => s.classList.remove('on'));
+          rows.forEach((r) => r.classList.remove('written', 'landing'));
+          step = 0;
+        }
+      }, 2100);
+    });
+
+    // ---- 02: the book — a single simulated click opens one full profile ----
+    document.querySelectorAll('.fp-book').forEach((visual) => {
+      const row = visual.querySelector<HTMLElement>('.book2-row');
+      const line = row?.querySelector<HTMLElement>('.book2-line');
+      if (!row || !line) return;
+      const cycle = () => {
+        // click…
+        line.classList.add('clicking');
+        setTimeout(() => {
+          line.classList.remove('clicking');
+          row.classList.add('open');
+        }, 300);
+        // …read the profile, then close and idle
+        setTimeout(() => row.classList.remove('open'), 5200);
+        setTimeout(cycle, 7000);
+      };
+      setTimeout(cycle, 900);
+    });
+
+    // ---- 03: approve → the item leaves the queue and lands in the ledger ----
+    document.querySelectorAll('.fp-appr').forEach((visual) => {
+      const items = Array.from(visual.querySelectorAll<HTMLElement>('.appr-item'));
+      const done = Array.from(visual.querySelectorAll<HTMLElement>('.adone-row'));
+      const count = visual.querySelector<HTMLElement>('.appr-count');
+      let step = 0;
+      setInterval(() => {
+        if (step < items.length) {
+          const idx = step;
+          const item = items[idx];
+          const btn = item.querySelector<HTMLElement>('.fpv-approve');
+          item.classList.add('fv-active');
+          btn?.classList.add('fv-clicked');
+          setTimeout(() => {
+            btn?.classList.remove('fv-clicked');
+            btn?.classList.add('fv-done');
+            if (btn) btn.textContent = '✓ Approved';
+          }, 350);
+          setTimeout(() => {
+            item.classList.remove('fv-active');
+            item.classList.add('crossed');
+            const left = items.length - idx - 1;
+            done[idx]?.classList.add('show');
+            if (count) count.textContent = left > 0 ? `${left} pending` : 'all clear — nothing waiting on you';
+          }, 950);
+          step++;
+        } else if (step === items.length) {
+          step++; // hold one full beat on "nothing waiting on you"
+        } else {
+          // reset the day
+          items.forEach((item) => {
+            item.classList.remove('fv-active', 'crossed');
+            const btn = item.querySelector<HTMLElement>('.fpv-approve');
+            btn?.classList.remove('fv-done');
+            if (btn) btn.textContent = '✓ Approve';
+          });
+          done.forEach((d) => d.classList.remove('show'));
+          visual.querySelector('.appr-empty')?.classList.remove('show');
+          if (count) count.textContent = `${items.length} pending`;
+          step = 0;
+        }
+      }, 2500);
+    });
+  })();
+</script>

@@ -1,0 +1,154 @@
+---
+import SectionHeader from './SectionHeader.astro';
+---
+
+<section id="waitlist" class="py-24 md:py-32">
+  <SectionHeader chip="Early access" lead="Become a founding design partner." />
+
+  <div class="v-container mt-10 md:mt-14">
+    <div class="v-grid">
+      <div class="col-span-4 md:col-span-6 md:col-start-5">
+        <p class="reveal reveal--fade max-w-[580px] text-h4 text-ink-body">
+          <strong>We're onboarding a small group of advisors and RIA firms</strong> to
+          shape the product around real workflows and real compliance requirements. Early
+          access, a direct line to the founders, and your feedback in the product on a
+          weekly cadence.
+        </p>
+
+        <form class="reveal mt-9 grid max-w-[480px] gap-4" id="waitlist-form" data-reveal-delay="100" novalidate>
+          <div>
+            <label class="wl-label" for="wl-name">Name</label>
+            <input class="wl-field" id="wl-name" name="name" type="text" autocomplete="name" />
+          </div>
+          <div>
+            <label class="wl-label" for="wl-email">Work email</label>
+            <input class="wl-field" id="wl-email" name="email" type="email" placeholder="you@yourfirm.com" autocomplete="email" required />
+            <p class="wl-hint hidden" id="wl-email-hint">
+              Looks like a personal address — a firm email helps us verify you, but it's not required.
+            </p>
+          </div>
+          <div>
+            <label class="wl-label" for="wl-firm">Firm website</label>
+            <input class="wl-field" id="wl-firm" name="firm" type="url" placeholder="https://yourfirm.com" autocomplete="url" />
+          </div>
+          <div>
+            <label class="wl-label" for="wl-crm">Current CRM <span class="wl-opt">(optional)</span></label>
+            <input class="wl-field" id="wl-crm" name="crm" type="text" placeholder="Redtail, Wealthbox, Salesforce…" />
+          </div>
+          <div>
+            <label class="wl-label" for="wl-note">Tell us about your practice <span class="wl-opt">(optional)</span></label>
+            <textarea class="wl-field" id="wl-note" name="note" rows="3"></textarea>
+          </div>
+          {/* Formspree extras: subject line + honeypot (bots fill it, humans never see it) */}
+          <input type="hidden" name="_subject" value="Verren — early access request" />
+          <input class="hidden" type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true" />
+          <p class="wl-error hidden" id="wl-error" role="alert">
+            Something went wrong — your email wasn't lost, try again.
+          </p>
+          <button class="v-btn v-btn--primary wl-submit" type="submit" id="wl-submit">
+            Request early access <span class="arrow">→</span>
+          </button>
+        </form>
+
+        <div class="wl-success mt-9 hidden max-w-[480px] rounded-lg bg-brand-wash p-5 text-base text-ink-title" id="waitlist-success" role="status">
+          You're on the list — we'll be in touch shortly.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .wl-label {
+    display: block;
+    font-size: var(--text-xs);
+    color: var(--v-ink-hint);
+    margin-bottom: 6px;
+  }
+  .wl-opt {
+    color: var(--v-ink-subtle);
+  }
+  .wl-field {
+    width: 100%;
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    padding: 10px 13px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--v-border-moderate);
+    background: var(--v-card);
+    color: var(--v-ink-title);
+    resize: vertical;
+  }
+  .wl-field:focus {
+    outline: none;
+    border-color: var(--v-brand-soft);
+    box-shadow: 0 0 0 3px var(--v-brand-wash);
+  }
+  .wl-hint {
+    margin-top: 6px;
+    font-size: var(--text-xs);
+    color: var(--v-ink-hint);
+  }
+  .wl-error {
+    font-size: var(--text-sm);
+    color: #a04040;
+  }
+  .wl-submit {
+    height: 34px;
+    font-size: var(--text-sm);
+    width: max-content;
+  }
+  .wl-submit[disabled] {
+    opacity: 0.6;
+    pointer-events: none;
+  }
+</style>
+
+<script>
+  const form = document.getElementById('waitlist-form') as HTMLFormElement | null;
+  const success = document.getElementById('waitlist-success');
+  const errorEl = document.getElementById('wl-error');
+  const submitBtn = document.getElementById('wl-submit') as HTMLButtonElement | null;
+  const emailEl = document.getElementById('wl-email') as HTMLInputElement | null;
+  const emailHint = document.getElementById('wl-email-hint');
+
+  // Soft nudge only — plenty of solo advisors legitimately run personal inboxes.
+  const PERSONAL = /@(gmail|yahoo|hotmail|outlook|icloud|aol|proton|protonmail|me|live|msn)\./i;
+  emailEl?.addEventListener('blur', () => {
+    const v = emailEl.value.trim();
+    emailHint?.classList.toggle('hidden', !(v.includes('@') && PERSONAL.test(v)));
+  });
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    errorEl?.classList.add('hidden');
+    const email = (emailEl?.value ?? '').trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      emailEl?.focus();
+      emailEl?.reportValidity?.();
+      return;
+    }
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Sending…';
+    }
+    try {
+      // Formspree — same account as seedzeng.com, delivers to the founders' inbox.
+      // TODO: swap for a dedicated Verren form ID once created in Formspree.
+      const res = await fetch('https://formspree.io/f/xknqwvlo', {
+        method: 'POST',
+        headers: { Accept: 'application/json' },
+        body: new FormData(form),
+      });
+      if (!res.ok) throw new Error(String(res.status));
+      form.classList.add('hidden');
+      success?.classList.remove('hidden');
+    } catch {
+      errorEl?.classList.remove('hidden');
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = 'Request early access <span class="arrow">→</span>';
+      }
+    }
+  });
+</script>

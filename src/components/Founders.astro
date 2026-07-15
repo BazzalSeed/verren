@@ -1,0 +1,104 @@
+---
+/**
+ * The team — founders + advisor gallery. Photos optimized via astro:assets.
+ */
+import { Image } from 'astro:assets';
+import seedImg from '../assets/team/seed.png';
+import hansenImg from '../assets/team/hansen.png';
+import tylerImg from '../assets/team/tyler.png';
+
+const team = [
+  {
+    img: seedImg,
+    name: 'Seed Zeng',
+    role: 'Founder & CTO',
+    bio: 'Before Verren, Seed was a Senior Staff Software Engineer at DoorDash, where he led a 40+ engineer storage organization, and previously a Tech Lead at Meta. Earlier, as a founding engineer at Klaviyo, he built the real-time customer-data platform that scaled to 150,000 events per second. At Verren, he leads product and engineering end to end.',
+    href: 'https://www.seedzeng.com/',
+    label: 'seedzeng.com',
+  },
+  {
+    img: hansenImg,
+    name: 'Hansen Liang',
+    role: 'Founder & CEO',
+    bio: "Hansen is a 0-to-1 product and business leader who helped take Klaviyo Service and Klaviyo Reviews from concept to market. He has shipped more than a dozen products across software and hardware and leads Verren's go-to-market, partnerships, and company strategy.",
+    href: 'https://www.thehansenliang.com/',
+    label: 'thehansenliang.com',
+  },
+  {
+    img: tylerImg,
+    name: 'Tyler Calder, CFP®',
+    role: 'Advisor',
+    bio: 'Tyler is a Partner at Cerity Partners and a CFP® advising business owners and families across New England. Known for a plan-first approach, he integrates investment management with tax and estate strategy — and helps ensure Verren is built around the realities of high-trust advisory work.',
+    href: 'https://ceritypartners.com/team/tyler-calder/',
+    label: 'ceritypartners.com',
+  },
+];
+---
+
+<section id="founders" class="py-24 md:py-32">
+  {/* no title — the chip and the three bios carry it */}
+  <div class="v-container md:border-t md:border-hairline md:pt-4">
+    <span class="v-chip reveal">The team</span>
+  </div>
+
+  <div class="v-container mt-10 md:mt-14">
+    <div class="v-grid">
+      <ul class="col-span-4 grid list-none grid-cols-1 gap-x-6 gap-y-10 p-0 md:col-span-10 md:col-start-3 md:grid-cols-3">
+        {team.map((m, i) => (
+          <li class="v-item reveal" data-reveal-delay={String(i * 80)}>
+            <Image
+              class="team-photo"
+              src={m.img}
+              alt={`${m.name} — ${m.role}`}
+              width={640}
+              densities={[1, 2]}
+              format="webp"
+            />
+            <h3 class="mt-4 text-base text-ink-title">{m.name}</h3>
+            <div class="team-meta">
+              <span class="team-role">{m.role}</span>
+              <a class="team-link text-xs" href={m.href} target="_blank" rel="noopener">{m.label}</a>
+            </div>
+            <p class="mt-3 text-sm text-ink-body">{m.bio}</p>
+          </li>
+        ))}
+      </ul>
+
+    </div>
+  </div>
+</section>
+
+<style>
+  .team-photo {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    border: 1px solid var(--v-border-subtle);
+    background: var(--v-surface);
+  }
+  .team-meta {
+    margin-top: 4px;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .team-role {
+    font-family: 'DM Mono', ui-monospace, monospace;
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--v-ink-hint);
+  }
+  /* quiet, ink-colored — a loud blue link breaks the register */
+  .team-link {
+    color: var(--v-ink-sub);
+    text-decoration: none;
+    border-bottom: 1px solid var(--v-border-moderate);
+    transition: color 200ms ease, border-color 200ms ease;
+  }
+  .team-link:hover {
+    color: var(--v-ink-title);
+    border-bottom-color: var(--v-ink-sub);
+  }
+</style>

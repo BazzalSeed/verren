@@ -91,7 +91,8 @@ filing system; they make it irrelevant. The arc:
    knowledge, work, and compliance evidence live; priced the way wealth platforms are
    priced — in basis points on the assets it serves, because it earns a share of the
    capacity it creates. The most trusted seat in the advisor's stack, held by the platform
-   that never sent their clients' data anywhere.
+   that never sent their clients' data anywhere. In other words, the true AI-native CRM,
+   end to end.
 
 ## Why us
 
@@ -117,10 +118,10 @@ problems this product is made of — keeping customer profiles alive at scale, a
 
 ## The ask: shape it with us
 
-We're selecting a small group of advisors and RIA firms as **founding design partners**.
-You get early access, a direct line to the founders, and a product molded around your
-practice's real workflows and compliance requirements — before the rest of the market sees
-it. If the way wealth management software works has ever felt beneath the work you actually
-do, we'd like to build the fix with you.
+We're selecting a small group of advisors and RIA firms (≤3) as **founding design
+partners**. You get early access, a direct line to the founders, and a product molded
+around your practice's real workflows and compliance requirements — before the rest of the
+market sees it. If the way wealth management software works has ever felt beneath the work
+you actually do, we'd like to build the fix with — and for — you.
 
-**Contact:** Seed Zeng · cdzengpeiyun@gmail.com · [seedzeng.com](https://www.seedzeng.com/)
+**Contact:** Seed Zeng · seedzpy@gmail.com · [seedzeng.com](https://www.seedzeng.com/)

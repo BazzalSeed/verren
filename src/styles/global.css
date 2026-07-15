@@ -1,0 +1,580 @@
+@import "tailwindcss";
+
+/* Caveat — the handwritten voice (self-hosted, ported from Clawdia).
+   Used sparingly: page numerals, margin notes, the founders' sign-off.
+   The machine speaks DM Mono; the humans speak Caveat. */
+@font-face {
+  font-family: 'Caveat';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('/fonts/caveat.woff2') format('woff2');
+}
+
+/* ============================================================
+   Verren — design tokens, ported verbatim from lightfield.app
+   (docs/research/lightfield-typography-deep.md)
+
+   Rules that keep it "lightfield":
+   - One typeface (General Sans), one weight (400). Nothing bold.
+   - Nothing larger than 28px. Hierarchy = size + ink opacity +
+     whitespace, never weight.
+   - Body copy 50% ink, headings 85%. Dividers are 4% hairlines.
+   - One restrained blue accent, links/brand only.
+   ============================================================ */
+
+:root {
+  /* ink ladder (black-alpha ramp t4–t11) */
+  --v-ink-title: rgba(0, 0, 0, 0.85);   /* content-primary — headings, feature titles */
+  --v-ink-strong: rgba(0, 0, 0, 0.75);  /* content-tertiary — hero H1 mobile */
+  --v-ink-sub: rgba(0, 0, 0, 0.6);      /* content-secondary — quiet subtitles */
+  --v-ink-body: rgba(0, 0, 0, 0.5);     /* content-quaternary — DEFAULT body copy */
+  --v-ink-hint: rgba(0, 0, 0, 0.35);
+  --v-ink-subtle: rgba(0, 0, 0, 0.25);
+  --v-ink-faint: rgba(0, 0, 0, 0.12);
+
+  /* surfaces */
+  --v-bg: #f5f5f5;                      /* background-secondary — <body> base */
+  --v-surface: #fafafa;                 /* background-primary — raised surface */
+  --v-card: #ffffff;
+
+  /* hairlines */
+  --v-hairline: rgba(0, 0, 0, 0.04);    /* surface-primary — THE divider */
+  --v-border-subtle: rgba(0, 0, 0, 0.06);
+  --v-border-moderate: rgba(0, 0, 0, 0.12);
+
+  /* interactive fills (buttons are barely-there) */
+  --v-fill: rgba(0, 0, 0, 0.04);
+  --v-fill-hover: rgba(0, 0, 0, 0.06);
+
+  /* accent — links/brand/focus only */
+  --v-brand: #3182d4;
+  --v-brand-soft: #80bfff;
+  --v-brand-wash: rgba(128, 191, 255, 0.12);
+
+  /* atmosphere */
+  --v-wash-top: #c7c9d1;
+  --v-wash-bottom: #ebe8e5;
+
+  /* nav blur pill */
+  --v-nav-fill: rgba(250, 250, 250, 0.6);
+
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --v-ink-title: rgba(255, 255, 255, 0.88);
+    --v-ink-strong: rgba(255, 255, 255, 0.78);
+    --v-ink-sub: rgba(255, 255, 255, 0.62);
+    --v-ink-body: rgba(255, 255, 255, 0.52);
+    --v-ink-hint: rgba(255, 255, 255, 0.38);
+    --v-ink-subtle: rgba(255, 255, 255, 0.28);
+    --v-ink-faint: rgba(255, 255, 255, 0.14);
+
+    --v-bg: #0d0d0d;                    /* obsidian */
+    --v-surface: #141414;
+    --v-card: #1a1a1a;
+
+    --v-hairline: rgba(255, 255, 255, 0.06);
+    --v-border-subtle: rgba(255, 255, 255, 0.08);
+    --v-border-moderate: rgba(255, 255, 255, 0.14);
+
+    --v-fill: rgba(255, 255, 255, 0.06);
+    --v-fill-hover: rgba(255, 255, 255, 0.09);
+
+    --v-wash-top: #1c1e22;
+    --v-wash-bottom: #171513;
+
+    --v-nav-fill: rgba(13, 13, 13, 0.55);
+
+    color-scheme: dark;
+  }
+}
+
+@theme {
+  /* single family, load 400 only */
+  --font-sans: "General Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-hand: "Caveat", cursive;
+
+  /* type scale — tracking/leading baked into each size, weight always 400 */
+  --text-xxs: 11px;
+  --text-xxs--line-height: 1.45;
+  --text-xs: 12px;
+  --text-xs--line-height: 1.45;
+  --text-sm: 13px;
+  --text-sm--line-height: 1.5;
+  --text-base: 15px;
+  --text-base--line-height: 1.5;
+  --text-lg: 17px;
+  --text-lg--line-height: 1.5;
+  --text-h4: 19px;
+  --text-h4--line-height: 1.3;
+  --text-h4--letter-spacing: -0.01em;
+  --text-h3: 21px;
+  --text-h3--line-height: 1.25;
+  --text-h3--letter-spacing: -0.015em;
+  --text-h2: 24px;
+  --text-h2--line-height: 1.25;
+  --text-h2--letter-spacing: -0.02em;
+  --text-h1: 28px;
+  --text-h1--line-height: 1.2;
+  --text-h1--letter-spacing: -0.03em;
+  --text-d4: 32px;
+  --text-d4--line-height: 1.15;
+  --text-d4--letter-spacing: -0.035em;
+
+  /* semantic colors → utilities (text-ink-title, bg-page, border-hairline…) */
+  --color-ink-title: var(--v-ink-title);
+  --color-ink-strong: var(--v-ink-strong);
+  --color-ink-sub: var(--v-ink-sub);
+  --color-ink-body: var(--v-ink-body);
+  --color-ink-hint: var(--v-ink-hint);
+  --color-ink-subtle: var(--v-ink-subtle);
+  --color-ink-faint: var(--v-ink-faint);
+  --color-page: var(--v-bg);
+  --color-surface: var(--v-surface);
+  --color-card: var(--v-card);
+  --color-hairline: var(--v-hairline);
+  --color-border-subtle: var(--v-border-subtle);
+  --color-border-moderate: var(--v-border-moderate);
+  --color-fill: var(--v-fill);
+  --color-fill-hover: var(--v-fill-hover);
+  --color-brand: var(--v-brand);
+  --color-brand-soft: var(--v-brand-soft);
+  --color-brand-wash: var(--v-brand-wash);
+
+  /* radius — 6px is the default for buttons/cards */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 10px;
+  --radius-2xl: 12px;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    /* clip (not hidden — keeps position:sticky working) so the hero canvas's
+       unscaled layout box never causes horizontal scroll */
+    overflow-x: clip;
+    background: var(--v-bg);
+    color: var(--v-ink-body);
+    font-family: var(--font-sans);
+    font-weight: 400;
+    font-size: var(--text-base);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  /* nothing on this site is bold; strong = darker ink, same weight */
+  strong, b {
+    font-weight: 400;
+    color: var(--v-ink-title);
+  }
+  h1, h2, h3, h4 {
+    font-weight: 400;
+    color: var(--v-ink-title);
+  }
+  ::selection {
+    background: var(--v-brand-wash);
+  }
+}
+
+@layer components {
+  /* container — lightfield: max 1800, pad 48→56 (we cap tighter for a 1-product page) */
+  .v-container {
+    margin-inline: auto;
+    width: 100%;
+    max-width: 1280px;
+    padding-inline: clamp(20px, 4vw, 56px);
+  }
+
+  /* 12-col grid (4-col on mobile) */
+  .v-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    column-gap: 0.5rem;
+  }
+  @media (min-width: 768px) {
+    .v-grid {
+      grid-template-columns: repeat(12, 1fr);
+      column-gap: 1.5rem;
+    }
+  }
+
+  /* eyebrow chip — bordered mono-caps pill, faintest ink, hugs text */
+  .v-chip {
+    font-family: 'DM Mono', ui-monospace, monospace;
+    display: inline-block;
+    width: max-content;
+    border: 0.5px solid var(--v-border-moderate);
+    border-radius: var(--radius-sm);
+    padding: 5px 6px;
+    font-size: 9px;
+    line-height: 1;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-weight: 500;
+    color: var(--v-ink-body);
+  }
+
+  /* buttons — barely-there fills, 26px tall, 12px text, arrow-nudge */
+  .v-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    height: 26px;
+    padding: 0 8px 0 10px;
+    border-radius: var(--radius-md);
+    font-size: var(--text-xs);
+    color: var(--v-ink-title);
+    background: var(--v-fill);
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    border: none;
+    transition: background 50ms ease-out;
+  }
+  .v-btn:hover {
+    background: var(--v-fill-hover);
+  }
+  .v-btn .arrow {
+    transition: transform 200ms ease-out;
+  }
+  .v-btn:hover .arrow {
+    transform: translateX(2px);
+  }
+  /* primary variant — solid card-white on the wash (lightfield: interactive-primary/80) */
+  .v-btn--primary {
+    background: color-mix(in srgb, var(--v-card) 85%, transparent);
+    box-shadow: 0 0 0 0.5px var(--v-border-subtle);
+  }
+  .v-btn--primary:hover {
+    background: var(--v-card);
+  }
+
+  /* hairline-ruled capability item */
+  .v-item {
+    border-top: 1px solid var(--v-hairline);
+    padding-top: 12px;
+    padding-bottom: 24px;
+  }
+
+  /* nav — floating pill, blur via ::before so nav text stays sharp */
+  .v-navbar {
+    position: relative;
+    border-radius: var(--radius-xl);
+    z-index: 100;
+  }
+  .v-navbar::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: var(--v-nav-fill);
+    backdrop-filter: blur(17px);
+    -webkit-backdrop-filter: blur(17px);
+    pointer-events: none;
+    z-index: -1;
+  }
+  @media (prefers-color-scheme: dark) {
+    .v-navbar::before {
+      backdrop-filter: blur(23px);
+      -webkit-backdrop-filter: blur(23px);
+    }
+  }
+}
+
+/* ============================================================
+   Handwritten accents (Clawdia heritage) — the personal voice.
+   ============================================================ */
+
+.hand-num {
+  font-family: var(--font-hand);
+  font-size: clamp(2rem, 2vw + 1.2rem, 2.6rem);
+  font-weight: 500;
+  line-height: 0.9;
+  letter-spacing: 0.02em;
+  color: var(--v-brand);
+  transform: rotate(-4deg);
+  transform-origin: left center;
+  display: inline-block;
+}
+.hand-note {
+  font-family: var(--font-hand);
+  font-size: clamp(1.25rem, 1vw + 0.9rem, 1.6rem);
+  line-height: 1.1;
+  color: var(--v-brand);
+  transform: rotate(-5deg);
+  transform-origin: left center;
+  display: inline-block;
+}
+.hand-sign {
+  font-family: var(--font-hand);
+  font-size: 1.9rem;
+  font-weight: 500;
+  color: var(--v-ink-title);
+  transform: rotate(-2.5deg);
+  transform-origin: left center;
+  display: inline-block;
+}
+
+/* ============================================================
+   Pointer tilt (Clawdia's Apple-TV tilt, ported) — .v-tilt surfaces
+   rotate toward the cursor with a specular sheen; JS in Layout.astro.
+   ============================================================ */
+
+.v-tilt {
+  position: relative;
+  transition:
+    transform 620ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 620ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.v-tilt::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(
+    320px circle at var(--tilt-mx, 50%) var(--tilt-my, 50%),
+    rgba(255, 255, 255, 0.35),
+    transparent 70%
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.v-tilt.tilting {
+  /* 1:1 cursor tracking — kill the snap-back transition while engaged */
+  transition: box-shadow 620ms cubic-bezier(0.22, 1, 0.36, 1);
+  box-shadow:
+    0 24px 44px -16px rgba(0, 0, 0, 0.22),
+    0 8px 16px -4px rgba(0, 0, 0, 0.08);
+}
+.v-tilt.tilting::after {
+  opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .v-tilt.tilting {
+    transform: none !important;
+  }
+  .v-tilt::after {
+    display: none;
+  }
+}
+
+/* ============================================================
+   Feature-visual autoplay — rows take turns lighting up; approve
+   buttons get "clicked" (JS cycles classes in Features.astro).
+   ============================================================ */
+
+.fpv-row {
+  transition: background 400ms ease, opacity 400ms ease, transform 400ms ease;
+  border-radius: 6px;
+}
+.fpv-row.fv-active {
+  background: var(--v-fill);
+}
+/* a "new item" arriving at the top of a feed */
+.fv-enter {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+.fv-clicked {
+  transform: scale(0.94);
+}
+.fv-done {
+  background: #2e7d4f !important;
+  color: #ffffff !important;
+  border-color: #2e7d4f !important;
+}
+/* an approved row settles: outcome shown, slightly receded */
+.fv-settled {
+  opacity: 0.82;
+}
+.fv-settled .fpv-l1 {
+  color: var(--v-ink-sub);
+}
+/* extraction chip: waiting state → pops in when the AI has read the item */
+.fv-chip-wait {
+  background: var(--v-fill) !important;
+  color: var(--v-ink-subtle) !important;
+}
+@keyframes v-chip-pop {
+  0% { transform: scale(0.5); opacity: 0; }
+  70% { transform: scale(1.12); }
+  100% { transform: scale(1); opacity: 1; }
+}
+.fv-chip-pop {
+  animation: v-chip-pop 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+/* the briefing absorbing a fresh signal */
+.fpv-brief {
+  transition: border-color 500ms ease, background 500ms ease;
+}
+.fpv-brief.fv-flash {
+  border-color: var(--v-brand-soft);
+  background: var(--v-brand-wash);
+}
+
+/* live-status dot heartbeat (decorative; frozen-at-rest is fine in webviews) */
+@keyframes v-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.6); opacity: 0.55; }
+}
+.v-live-dot {
+  animation: v-pulse 2.2s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .v-live-dot { animation: none; }
+  .fv-enter { opacity: 1; transform: none; }
+}
+
+/* ============================================================
+   Motion — webview-safe (docs/research/lightfield-scroll-motion.md)
+   Resting state is the default; hidden start-state is armed only
+   after JS adds .js-anim to <html>. If JS never runs, page shows.
+   ============================================================ */
+
+.reveal {
+  opacity: 1;
+  transform: none;
+}
+.js-anim .reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition:
+    opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity, transform;
+}
+.js-anim .reveal--fade {
+  transform: none;
+}
+.js-anim .reveal.in {
+  opacity: 1;
+  transform: none;
+}
+/* fallback path: snap to visible with no transition (suspended webviews
+   freeze transitions at their start state) */
+.js-anim .reveal.in--snap {
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .js-anim .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* ============================================================
+   Pinned vertical page scrub ([data-vpin]) — the section pins for
+   (pages + 1) viewports while its pages cross-fade/slide vertically,
+   scrubbed to scroll. Default (no JS) = plain static stack; JS +
+   desktop + motion-ok arms the pinned mode. Driven from Layout.astro.
+   ============================================================ */
+
+.vpin-page {
+  width: 100%;
+  padding-block: 36px;
+}
+/* the section header (chip + overall title + page index) lives INSIDE the
+   sticky viewport, so section context never leaves the screen while pinned */
+.vpin-index {
+  display: none;
+  gap: 10px;
+  font-family: 'DM Mono', ui-monospace, monospace;
+  font-size: var(--text-xs);
+  color: var(--v-ink-subtle);
+}
+.vpin-num {
+  cursor: pointer;
+  pointer-events: auto;
+  transition: color 200ms ease;
+}
+.vpin-num:hover {
+  color: var(--v-ink-sub);
+}
+.vpin-num.on {
+  color: var(--v-ink-title);
+}
+
+.js-anim .vpin {
+  height: calc((var(--pages, 3) + 1) * 100vh);
+}
+.js-anim .vpin-sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+}
+.js-anim .vpin-page {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  padding-block: 0;
+  will-change: transform, opacity;
+}
+.js-anim .vpin-page:not(:first-child) {
+  opacity: 0;
+  pointer-events: none;
+}
+/* pinned mode: header floats at the top of the sticky viewport, above the
+   sliding pages; pages center in the space below it */
+.js-anim .vpin-head {
+  position: absolute;
+  top: 84px;
+  left: 0;
+  right: 0;
+  z-index: 3;
+}
+.js-anim .vpin-page {
+  /* anchor content just below the pinned header instead of centering in the
+     full viewport — centering left a dead zone on tall screens */
+  align-items: flex-start;
+  padding-top: clamp(220px, 30vh, 320px);
+}
+/* slim variant: only a chip + index strip is pinned (no big title),
+   so pages ride higher */
+.js-anim .vpin--slim .vpin-page {
+  padding-top: clamp(150px, 22vh, 240px);
+}
+.js-anim .vpin-index {
+  display: flex;
+}
+
+/* fallback: small screens & reduced motion stay a static stack */
+@media (max-width: 899px), (prefers-reduced-motion: reduce) {
+  .js-anim .vpin {
+    height: auto;
+  }
+  .js-anim .vpin-sticky {
+    position: static;
+    height: auto;
+    overflow: visible;
+  }
+  .js-anim .vpin-page {
+    position: static;
+    display: block;
+    opacity: 1 !important;
+    transform: none !important;
+    pointer-events: auto !important;
+    padding-block: 36px;
+  }
+  .js-anim .vpin-head {
+    position: static;
+  }
+  .js-anim .vpin-index {
+    display: none;
+  }
+}

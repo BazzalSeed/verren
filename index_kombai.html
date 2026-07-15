@@ -1,0 +1,428 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Verren — Operational intelligence for professional advisors</title>
+  <meta name="description" content="Verren handles the administrative friction of your book — prep, notes, and follow-through — on private inference models. No training on client data." />
+  
+  <!-- Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Source+Sans+3:ital,wght@0,200..900;1,200..900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'carbon': '#1b1b1b',
+            'ledger-gray': '#717171',
+            'ledger-rule': 'rgba(27, 27, 27, 0.12)',
+            'success-green': '#2e7d4f',
+          },
+          fontFamily: {
+            serif: ['"Playfair Display"', 'serif'],
+            sans: ['"Source Sans 3"', 'sans-serif'],
+            mono: ['"DM Mono"', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Locomotive Scroll Styles -->
+  <link href="https://cdn.jsdelivr.net/npm/locomotive-scroll@5/bundled/locomotive-scroll.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --color-bg: #fafafa;
+      --color-text: #1b1b1b;
+      --wash-top: #c7c9d1;
+      --wash-mid: #ebe8e5;
+    }
+
+    body {
+      background-color: var(--color-bg);
+      color: var(--color-text);
+      font-family: 'Source Sans 3', sans-serif;
+      margin: 0;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Grid Paper Pattern */
+    .bg-grid-paper {
+      background-image: 
+        linear-gradient(rgba(27, 27, 27, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(27, 27, 27, 0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+
+    /* Gradient Wash */
+    .bg-wash {
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+      background: linear-gradient(to bottom, var(--wash-top) 0%, var(--wash-mid) 46%, var(--color-bg) 78%);
+      pointer-events: none;
+      opacity: 0.4;
+    }
+
+    /* Swiss Grid */
+    .swiss-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      border-left: 1px solid rgba(27, 27, 27, 0.12);
+      border-right: 1px solid rgba(27, 27, 27, 0.12);
+    }
+
+    .ledger-cell {
+      border-bottom: 1px solid rgba(27, 27, 27, 0.12);
+      border-right: 1px solid rgba(27, 27, 27, 0.12);
+      padding: clamp(2rem, 6vw, 5rem);
+    }
+
+    .ledger-cell:last-child, .ledger-cell:nth-child(12n) {
+      border-right: none;
+    }
+
+    /* Operational Audit Rows */
+    .audit-row {
+      display: grid;
+      grid-template-columns: 200px 1fr 220px;
+      gap: 3rem;
+      align-items: baseline;
+      border-bottom: 1px solid rgba(27, 27, 27, 0.12);
+      padding: 4rem 0;
+    }
+
+    .audit-row:last-child {
+      border-bottom: none;
+    }
+
+    /* Margin-Proof Artifacts */
+    .artifact {
+      background: #ffffff;
+      border: 1.5px solid #1b1b1b;
+      padding: 1.75rem;
+      width: 340px;
+      box-shadow: 8px 8px 0px rgba(27, 27, 27, 0.05);
+      position: relative;
+    }
+
+    .btn-brutal {
+      background: #1b1b1b;
+      color: white;
+      padding: 1.25rem 3rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-size: 13px;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .btn-brutal:hover {
+      transform: translate(-3px, -3px);
+      box-shadow: 6px 6px 0px rgba(27, 27, 27, 0.15);
+    }
+
+    .nav-link {
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      font-weight: 500;
+      text-decoration: none;
+      color: inherit;
+      opacity: 0.7;
+      padding: 0.75rem 1rem;
+      transition: opacity 0.3s ease;
+    }
+
+    .nav-link:hover {
+      opacity: 1;
+    }
+
+    /* Transition-free reveals for reading focus */
+    .reveal-on-scroll {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1), transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .is-inview .reveal-on-scroll {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 1024px) {
+      .swiss-grid { grid-template-columns: 1fr; border: none; }
+      .ledger-cell { border-right: none; padding: 2.5rem; }
+      .audit-row { grid-template-columns: 1fr; gap: 1rem; padding: 2rem 0; }
+    }
+  </style>
+</head>
+<body class="bg-grid-paper">
+  <div aria-hidden="true" class="bg-wash"></div>
+  
+  <div data-scroll-container>
+
+    <!-- Institutional Header -->
+    <header class="swiss-grid sticky top-0 z-[100] bg-white/80 backdrop-blur-xl border-b border-ledger-rule">
+      <div class="ledger-cell col-span-3 py-4 flex items-center">
+        <a href="#" class="font-serif text-3xl font-bold tracking-tighter">Verren.</a>
+      </div>
+      <div class="ledger-cell col-span-6 flex items-center justify-center gap-4 py-4">
+        <a href="#how" class="nav-link">Operational standard</a>
+        <a href="#trust" class="nav-link">Compliance</a>
+        <a href="#founders" class="nav-link">Background</a>
+      </div>
+      <div class="ledger-cell col-span-3 flex items-center justify-end py-4">
+        <a href="#waitlist" class="btn-brutal">Join the cohort</a>
+      </div>
+    </header>
+
+    <main>
+      <!-- Hero -->
+      <section class="swiss-grid min-h-[85vh]">
+        <div class="ledger-cell col-span-12 lg:col-span-8 flex flex-col justify-center">
+          <span class="font-mono uppercase tracking-[0.4em] text-xs font-medium mb-12 text-ledger-gray block">
+            Infrastructure for RIAs
+          </span>
+          <h1 class="text-7xl lg:text-[8.5rem] leading-[0.85] mb-16 font-serif italic reveal-on-scroll" data-scroll data-scroll-speed="0.8">
+            Your AI<br>chief of staff.
+          </h1>
+        </div>
+        <div class="ledger-cell col-span-12 lg:col-span-4 bg-white/5 flex flex-col justify-end">
+          <p class="text-2xl leading-relaxed mb-12 text-ledger-gray font-light">
+            Verren automates meeting prep and follow-through on private inference models. Your client data never touches a third-party AI provider.
+          </p>
+          <div>
+            <a href="#waitlist" class="font-serif italic text-3xl border-b-2 border-carbon pb-2 hover:opacity-50 transition-opacity">
+              Request early access →
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- Operational Audit -->
+      <section class="py-40 px-8 max-w-7xl mx-auto">
+        <div class="mb-24 flex justify-between items-end border-b-4 border-carbon pb-8">
+          <h2 class="text-6xl font-serif">Operational audit</h2>
+          <span class="font-mono text-sm text-ledger-gray uppercase tracking-[0.2em]">Market context // 2026</span>
+        </div>
+        
+        <div class="space-y-4">
+          <div class="audit-row">
+            <span class="text-7xl font-serif italic">41%</span>
+            <span class="text-2xl leading-snug text-ledger-gray font-light">
+              Advisor time actually spent with clients. The remainder is consumed by administrative friction.
+            </span>
+            <span class="font-mono text-xs uppercase tracking-widest font-bold text-ledger-gray text-right">Kitces Research</span>
+          </div>
+          
+          <div class="audit-row">
+            <span class="text-7xl font-serif italic">1,350h</span>
+            <span class="text-2xl leading-snug text-ledger-gray font-light">
+              Annual labor hours wasted on administrative tasks for a standard 100-client book.
+            </span>
+            <span class="font-mono text-xs uppercase tracking-widest font-bold text-ledger-gray text-right">T3 Advisor Survey</span>
+          </div>
+          
+          <div class="audit-row">
+            <span class="text-7xl font-serif italic">0.0%</span>
+            <span class="text-2xl leading-snug text-ledger-gray font-light">
+              Client data shared with third-party providers. We host our own inference on private cloud nodes.
+            </span>
+            <span class="font-mono text-xs uppercase tracking-widest font-bold text-ledger-gray text-right">SEC Compliant</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- The Standard -->
+      <section class="swiss-grid border-t border-ledger-rule" id="how">
+        <div class="ledger-cell col-span-12 lg:col-span-7 py-40 lg:pr-24">
+          <h2 class="text-7xl mb-24 font-serif">The Verren standard.</h2>
+          <div class="space-y-32">
+            <div class="max-w-2xl">
+              <span class="font-mono text-sm uppercase tracking-widest mb-6 text-ledger-gray block">01 / Context Capture</span>
+              <h3 class="text-4xl font-serif italic mb-8">Parse recordings and documents in real-time</h3>
+              <p class="text-xl leading-relaxed text-ledger-gray font-light">
+                Verren identifies household changes, tax liabilities, and estate commitments as they happen. Zero manual data entry required to keep the ledger current.
+              </p>
+            </div>
+            
+            <div class="max-w-2xl">
+              <span class="font-mono text-sm uppercase tracking-widest mb-6 text-ledger-gray block">02 / Dynamic Memory</span>
+              <h3 class="text-4xl font-serif italic mb-8">Walk into every meeting fully briefed</h3>
+              <p class="text-xl leading-relaxed text-ledger-gray font-light">
+                Client profiles update themselves from every signal. Verren surfaced inheritance mentions and job changes before you open the zoom.
+              </p>
+            </div>
+            
+            <div class="max-w-2xl">
+              <span class="font-mono text-sm uppercase tracking-widest mb-6 text-ledger-gray block">03 / Verified Action</span>
+              <h3 class="text-4xl font-serif italic mb-8">Draft outreach in your specific voice</h3>
+              <p class="text-xl leading-relaxed text-ledger-gray font-light">
+                Verren stages meeting follow-ups and action items for your review. Nothing runs without your explicit approval — deterministic intelligence at work.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="ledger-cell col-span-12 lg:col-span-5 bg-white/40 py-40 flex flex-col items-center gap-16 relative overflow-hidden">
+          <div class="artifact" data-scroll data-scroll-speed="1.2">
+            <span class="artifact-label opacity-50 font-mono text-[9px]">Operational Signal</span>
+            <div class="text-sm font-bold mb-3">Household event detected</div>
+            <p class="text-xs leading-relaxed italic text-ledger-gray mb-8">
+              "Jordan Ellis mentioned a pending inheritance in today's zoom. RMD projections adjusted for 2026 audit."
+            </p>
+            <div class="h-1 w-full bg-neutral-100 flex overflow-hidden">
+              <div class="h-full w-3/4 bg-carbon"></div>
+            </div>
+          </div>
+          
+          <div class="artifact lg:translate-x-12" data-scroll data-scroll-speed="1.7">
+            <span class="artifact-label opacity-50 font-mono text-[9px]">Drafted Intelligence</span>
+            <p class="text-xs leading-relaxed text-carbon mb-8">
+              "Hi Jordan, let's schedule a call to review the Eng vesting schedule we discussed. I've blocked off next Tuesday at 10 AM..."
+            </p>
+            <button class="w-full py-4 bg-carbon text-white text-[11px] font-bold uppercase tracking-[0.2em]">
+              Review & dispatch
+            </button>
+          </div>
+          
+          <div class="artifact lg:-translate-x-8" data-scroll data-scroll-speed="1.4">
+            <span class="artifact-label opacity-50 font-mono text-[9px]">Compliance Audit Trail</span>
+            <div class="space-y-3 text-ledger-gray">
+              <div class="flex justify-between text-[11px] font-mono"><span>EVENT_ID</span><span class="text-carbon">#VR-99281_AUDIT</span></div>
+              <div class="flex justify-between text-[11px] font-mono"><span>MODEL_PATH</span><span class="text-carbon">VERREN_CORE_8B_LATEST</span></div>
+              <div class="flex justify-between text-[11px] font-mono"><span>VALIDATION</span><span class="text-success-green font-bold uppercase">verified</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Trust -->
+      <section class="swiss-grid border-t border-ledger-rule" id="trust">
+        <div class="ledger-cell col-span-12 lg:col-span-6 bg-white py-32">
+          <span class="font-mono uppercase text-xs font-bold tracking-[0.4em] text-ledger-gray mb-12 block">Vulnerability</span>
+          <h2 class="text-5xl mb-12 font-serif">Public AI constraints</h2>
+          <ul class="space-y-10">
+            <li class="flex items-start gap-6 text-xl text-ledger-gray font-light">
+              <span class="text-2xl">×</span> <span>Data used for model refinement</span>
+            </li>
+            <li class="flex items-start gap-6 text-xl text-ledger-gray font-light">
+              <span class="text-2xl">×</span> <span>Multi-tenant shared infrastructure risk</span>
+            </li>
+            <li class="flex items-start gap-6 text-xl text-ledger-gray font-light">
+              <span class="text-2xl">×</span> <span>Absence of immutable audit trails</span>
+            </li>
+          </ul>
+        </div>
+        <div class="ledger-cell col-span-12 lg:col-span-6 bg-carbon text-white py-32">
+          <span class="font-mono uppercase text-xs font-bold tracking-[0.4em] text-neutral-400 mb-12 block">Security standard</span>
+          <h2 class="text-5xl mb-12 font-serif text-white">Verren infrastructure</h2>
+          <ul class="space-y-10">
+            <li class="flex items-start gap-6 text-xl font-light">
+              <span class="text-2xl text-success-green font-bold">✓</span> <span>Private-cloud dedicated inference instances</span>
+            </li>
+            <li class="flex items-start gap-6 text-xl font-light">
+              <span class="text-2xl text-success-green font-bold">✓</span> <span>SOC2 Type II & FINRA Compliant protocols</span>
+            </li>
+            <li class="flex items-start gap-6 text-xl font-light">
+              <span class="text-2xl text-success-green font-bold">✓</span> <span>Zero-retention data processing pipeline</span>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- Founder Manifesto -->
+      <section class="py-48 px-8 bg-white border-y border-ledger-rule" id="founders">
+        <div class="max-w-4xl mx-auto">
+          <span class="font-serif italic text-[10rem] opacity-5 block -mb-16 leading-none">“</span>
+          <h2 class="text-6xl lg:text-7xl leading-[1.1] mb-16 font-serif">
+            We're building the chief of staff every professional advisor deserves.
+          </h2>
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
+            <p class="text-2xl text-ledger-gray leading-relaxed font-light">
+              The team behind Klaviyo's customer data engine is applying that same technical rigor to the RIA sector. We spent our careers keeping customer profiles alive at scale. Now we're doing it for your book of business.
+            </p>
+            <div class="flex flex-col gap-6 font-serif italic text-2xl opacity-90">
+              <span>— Seed Zeng</span>
+              <span>— Hansen Liang</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Founding Partners -->
+      <section class="swiss-grid border-b border-ledger-rule" id="waitlist">
+        <div class="ledger-cell col-span-12 lg:col-span-6 py-40 flex flex-col justify-center">
+          <h2 class="text-7xl mb-12 font-serif">Founding partners.</h2>
+          <p class="text-2xl text-ledger-gray max-w-md leading-relaxed font-light">
+            We are onboarding a limited cohort of firms to shape the future of RIA operational intelligence.
+          </p>
+        </div>
+        <div class="ledger-cell col-span-12 lg:col-span-6 py-40 flex items-center justify-center bg-white/20">
+          <form id="waitlist-form" class="w-full max-w-md space-y-16" onsubmit="handleWaitlist(event)">
+            <div>
+              <label class="font-mono uppercase text-xs font-bold tracking-[0.2em] block mb-6 text-ledger-gray">Professional email</label>
+              <input type="email" required class="w-full bg-transparent border-b-2 border-ledger-rule py-4 focus:outline-none focus:border-carbon transition-colors text-xl" placeholder="name@firm.com">
+            </div>
+            <div>
+              <label class="font-mono uppercase text-xs font-bold tracking-[0.2em] block mb-6 text-ledger-gray">Operational details (optional)</label>
+              <input type="text" class="w-full bg-transparent border-b-2 border-ledger-rule py-4 focus:outline-none focus:border-carbon transition-colors text-xl" placeholder="AUM, team size, current CRM...">
+            </div>
+            <button type="submit" class="btn-brutal w-full py-6 text-sm shadow-xl">
+              Request invitation
+            </button>
+          </form>
+          <div id="waitlist-success" class="hidden text-center max-w-md">
+             <p class="text-4xl font-serif italic">Request logged.</p>
+             <p class="text-xl text-ledger-gray mt-6 font-light">We will be in touch shortly to discuss the founding cohort.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="swiss-grid font-mono text-[11px] uppercase tracking-[0.4em] font-medium text-ledger-gray">
+      <div class="ledger-cell col-span-6 py-16">Verren &copy; 2026 // Institutional compliance first</div>
+      <div class="ledger-cell col-span-6 py-16 text-right">Built for RIAs & Financial advisors</div>
+    </footer>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/locomotive-scroll@5/bundled/locomotive-scroll.min.js"></script>
+  <script>
+    function handleWaitlist(e) {
+      e.preventDefault();
+      document.getElementById('waitlist-form').classList.add('hidden');
+      document.getElementById('waitlist-success').classList.remove('hidden');
+    }
+
+    window.addEventListener('load', () => {
+      // Ensure fonts are ready and layout is stable
+      if (document.fonts) {
+        document.fonts.ready.then(() => initScroll());
+      } else {
+        setTimeout(initScroll, 200);
+      }
+
+      function initScroll() {
+        const locomotiveScroll = new LocomotiveScroll({
+          lenisOptions: {
+            lerp: 0.1,
+            duration: 1.2,
+            smoothWheel: true,
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,277 @@
+---
+interface Props {
+  title?: string;
+  description?: string;
+}
+const {
+  title = 'Verren — the AI chief of staff for financial advisors',
+  description = 'AI that remembers every client detail, preps every meeting, and handles the follow-through — always with your approval, on models we run ourselves.',
+} = Astro.props;
+import '../styles/global.css';
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <link rel="preconnect" href="https://api.fontshare.com" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    {/* One typeface, one weight — General Sans 400 (untitledSans substitute).
+        DM Mono only for the tiny eyebrow chips / card labels. */}
+    <link href="https://api.fontshare.com/v2/css?f[]=general-sans@400&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+    {/* Arm animation start-states ONLY when JS is live (webview-safe). */}
+    <script is:inline>
+      document.documentElement.classList.add('js-anim');
+    </script>
+  </head>
+  <body>
+    {/* hero atmosphere — fixed gradient wash; fades out as you scroll (scrubbed) */}
+    <div class="v-wash" id="v-wash" aria-hidden="true"></div>
+
+    <div class="v-navwrap">
+      <nav class="v-navbar flex w-full max-w-[880px] items-center justify-between gap-6 py-1 pr-1.5 pl-4">
+        <a class="v-wordmark no-underline" href="#top">Verren</a>
+        <div class="hidden items-center gap-1 sm:flex">
+          <a class="v-navlink" href="#problem">The problem</a>
+          <a class="v-navlink" href="#introducing">Introducing</a>
+          <a class="v-navlink" href="#features">Features</a>
+          <a class="v-navlink" href="#security">Security</a>
+          <a class="v-navlink" href="#founders">Founders</a>
+        </div>
+        <a class="v-btn v-btn--primary" href="#waitlist">Request early access <span class="arrow">→</span></a>
+      </nav>
+    </div>
+
+    <main id="top">
+      <slot />
+    </main>
+
+    <footer class="border-t border-hairline py-10">
+      <div class="v-container flex flex-col gap-1.5">
+        <div class="text-sm text-ink-sub">Verren — the AI chief of staff for financial advisors.</div>
+        <div class="text-xs text-ink-subtle">Early access · © 2026</div>
+      </div>
+    </footer>
+
+    <style>
+      .v-wash {
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        background: linear-gradient(to bottom, var(--v-wash-top), var(--v-wash-bottom) 62%, var(--v-bg) 92%);
+        pointer-events: none;
+      }
+      .v-navwrap {
+        position: sticky;
+        top: 14px;
+        z-index: 100;
+        display: flex;
+        justify-content: center;
+        padding-inline: clamp(16px, 4vw, 40px);
+      }
+      .v-wordmark {
+        font-family: var(--font-hand);
+        font-size: 24px;
+        font-weight: 600;
+        line-height: 1;
+        color: var(--v-ink-title);
+        letter-spacing: 0.01em;
+        transform: rotate(-1.5deg);
+        display: inline-block;
+        padding-bottom: 2px; /* optical centering for Caveat's baseline */
+      }
+      .v-navlink {
+        text-decoration: none;
+        font-size: var(--text-sm);
+        color: var(--v-ink-sub);
+        padding: 5px 10px;
+        border-radius: var(--radius-md);
+        transition: color 200ms, background 200ms;
+      }
+      .v-navlink:hover {
+        color: var(--v-ink-title);
+        background: var(--v-fill);
+      }
+    </style>
+
+    <script>
+      // ---- Pattern 1: one-shot reveals (IntersectionObserver → CSS transition) ----
+      let ioFired = false;
+      const revealIO = new IntersectionObserver(
+        (entries) => {
+          for (const e of entries) {
+            if (!e.isIntersecting) continue;
+            ioFired = true;
+            const el = e.target as HTMLElement;
+            const d = el.dataset.revealDelay;
+            if (d) el.style.setProperty('--reveal-delay', d + 'ms');
+            el.classList.add('in');
+            revealIO.unobserve(el);
+          }
+        },
+        { threshold: 0, rootMargin: '0px 0px -12% 0px' }
+      );
+      document.querySelectorAll('.reveal').forEach((el) => revealIO.observe(el));
+
+      // Webview safety net: ONLY if IO never fired (suspended webview), snap
+      // everything visible with transitions off — a suspended webview freezes
+      // mid-transition at opacity 0 otherwise. In live browsers IO handles
+      // every reveal, including below the fold on scroll.
+      setTimeout(() => {
+        if (ioFired) return;
+        document.querySelectorAll('.js-anim .reveal:not(.in)').forEach((el) => el.classList.add('in', 'in--snap'));
+      }, 600);
+
+      // ---- Pinned vertical page scrub ([data-vpin]) ----
+      // Pages cross-fade + slide vertically as a linear function of scroll
+      // progress across the tall wrapper. Reverses on scroll-up.
+      const vpins = Array.from(document.querySelectorAll<HTMLElement>('[data-vpin]')).map((wrap) => {
+        const pages = Array.from(wrap.querySelectorAll<HTMLElement>('.vpin-page'));
+        const nums = Array.from(wrap.querySelectorAll<HTMLElement>('.vpin-num'));
+        wrap.style.setProperty('--pages', String(pages.length));
+        // index numbers jump to their page's scroll position
+        nums.forEach((n, i) => {
+          n.addEventListener('click', () => {
+            const r = wrap.getBoundingClientRect();
+            const scrollable = r.height - window.innerHeight;
+            const target = window.scrollY + r.top + (i / Math.max(1, pages.length - 1)) * scrollable;
+            window.scrollTo({ top: target, behavior: 'smooth' });
+          });
+        });
+        return { wrap, pages, nums };
+      });
+      const mqDesktop = matchMedia('(min-width: 900px)');
+      const mqReduced = matchMedia('(prefers-reduced-motion: reduce)');
+      function updateVpins() {
+        for (const { wrap, pages, nums } of vpins) {
+          if (!mqDesktop.matches || mqReduced.matches) {
+            for (const pg of pages) {
+              pg.style.opacity = '';
+              pg.style.transform = '';
+              pg.style.pointerEvents = '';
+            }
+            continue;
+          }
+          const r = wrap.getBoundingClientRect();
+          const scrollable = r.height - window.innerHeight;
+          const p = Math.min(1, Math.max(0, -r.top / scrollable));
+          const t = p * (pages.length - 1);
+          pages.forEach((pg, i) => {
+            const off = Math.max(-1, Math.min(1, t - i));
+            // Pages travel like real pages: incoming rises from ~60% of a
+            // viewport below while the outgoing exits above — spatially
+            // separate the whole way, so the cross-fade can overlap in time
+            // without overlapping in space.
+            const a = Math.abs(off);
+            const raw = Math.min(1, Math.max(0, (0.65 - a) / 0.4));
+            const vis = raw * raw * (3 - 2 * raw); // smoothstep
+            pg.style.opacity = vis.toFixed(3);
+            pg.style.transform = `translate3d(0, ${(-off * window.innerHeight * 0.5).toFixed(1)}px, 0)`;
+            pg.style.pointerEvents = vis > 0.5 ? 'auto' : 'none';
+            pg.style.visibility = vis === 0 ? 'hidden' : '';
+          });
+          const active = Math.min(pages.length - 1, Math.round(t));
+          nums.forEach((n, i) => n.classList.toggle('on', i === active));
+        }
+      }
+      if (vpins.length) {
+        let vpinTicking = false;
+        const onVpinScroll = () => {
+          if (vpinTicking) return;
+          vpinTicking = true;
+          requestAnimationFrame(() => {
+            updateVpins();
+            vpinTicking = false;
+          });
+        };
+        addEventListener('scroll', onVpinScroll, { passive: true });
+        addEventListener('resize', onVpinScroll, { passive: true });
+        updateVpins();
+      }
+
+      // ---- Pointer tilt (ported from Clawdia's tilt.js) ----
+      // .v-tilt surfaces rotate toward the cursor with a sheen; delegated on
+      // document (one listener), rAF-batched, mouse-only, reduced-motion-off.
+      (() => {
+        if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        const SEL = '.v-tilt';
+        const MAX = 4, SCALE = 1.015, PERSP = 1000;
+        let raf = 0;
+        let queued: { tile: HTMLElement; x: number; y: number } | null = null;
+        let active: HTMLElement | null = null;
+        const paint = () => {
+          raf = 0;
+          if (!queued) return;
+          const { tile, x, y } = queued;
+          const r = tile.getBoundingClientRect();
+          if (!r.width || !r.height) return;
+          const px = (x - r.left) / r.width - 0.5;
+          const py = (y - r.top) / r.height - 0.5;
+          tile.style.transform =
+            `perspective(${PERSP}px) rotateX(${(-py * MAX * 2).toFixed(2)}deg)` +
+            ` rotateY(${(px * MAX * 2).toFixed(2)}deg) scale(${SCALE})`;
+          tile.style.setProperty('--tilt-mx', `${((px + 0.5) * 100).toFixed(1)}%`);
+          tile.style.setProperty('--tilt-my', `${((py + 0.5) * 100).toFixed(1)}%`);
+        };
+        const resetTile = (tile: HTMLElement) => {
+          tile.classList.remove('tilting');
+          tile.style.transform = '';
+          tile.style.willChange = '';
+        };
+        document.addEventListener(
+          'pointermove',
+          (e) => {
+            if (e.pointerType && e.pointerType !== 'mouse') {
+              if (active) { resetTile(active); active = null; }
+              return;
+            }
+            const tile = (e.target as Element | null)?.closest?.(SEL) as HTMLElement | null;
+            if (active && active !== tile) { resetTile(active); active = null; }
+            if (!tile) return;
+            if (active !== tile) {
+              active = tile;
+              tile.classList.add('tilting');
+              tile.style.willChange = 'transform';
+            }
+            queued = { tile, x: e.clientX, y: e.clientY };
+            if (!raf) raf = requestAnimationFrame(paint);
+          },
+          { passive: true }
+        );
+        const drop = () => { if (active) { resetTile(active); active = null; } };
+        document.addEventListener('pointerleave', drop);
+        addEventListener('scroll', drop, { passive: true });
+      })();
+
+      // ---- Pattern 2: scroll-scrub — hero wash fades across the first viewport ----
+      const wash = document.getElementById('v-wash');
+      const reduced = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (wash && !reduced) {
+        let ticking = false;
+        const update = () => {
+          const p = Math.min(1, Math.max(0, window.scrollY / (window.innerHeight * 1.2)));
+          wash.style.opacity = String(1 - p);
+        };
+        const onScroll = () => {
+          if (ticking) return;
+          ticking = true;
+          requestAnimationFrame(() => {
+            update();
+            ticking = false;
+          });
+        };
+        addEventListener('scroll', onScroll, { passive: true });
+        addEventListener('resize', onScroll, { passive: true });
+        update();
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,37 @@
+---
+/**
+ * The lightfield "heading-inline" molecule: eyebrow chip in the far-left
+ * grid column, title offset to cols 5–10. Never centered, never full-bleed.
+ * Title emphasis: wrap the dark lead clause in <strong> via the `lead` prop;
+ * `tail` renders muted after it.
+ */
+interface Props {
+  chip: string;
+  lead: string;
+  tail?: string;
+  hairline?: boolean;
+}
+const { chip, lead, tail, hairline = true } = Astro.props;
+---
+
+<div class:list={['v-container', hairline && 'md:border-t md:border-hairline md:pt-4']}>
+  <div class="v-grid gap-y-4">
+    <div class="col-span-4">
+      <span class="v-chip reveal font-mono">{chip}</span>
+    </div>
+    <div class="col-span-4 md:col-span-6 md:col-start-5">
+      <h2 class="reveal text-h1 text-ink-body" data-reveal-delay="80">
+        <strong>{lead}</strong>{tail && <span> {tail}</span>}
+      </h2>
+    </div>
+    <div class="hidden md:col-span-2 md:col-start-11 md:flex md:justify-end">
+      <slot name="aside" />
+    </div>
+  </div>
+</div>
+
+<style>
+  .v-chip {
+    font-family: 'DM Mono', ui-monospace, monospace;
+  }
+</style>
