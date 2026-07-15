@@ -7,38 +7,16 @@ import seedImg from '../assets/team/seed.png';
 import hansenImg from '../assets/team/hansen.png';
 import tylerImg from '../assets/team/tyler.png';
 
-const team = [
-  {
-    img: seedImg,
-    name: 'Seed Zeng',
-    role: 'Founder & CTO',
-    bio: 'Before Verren, Seed was a Senior Staff Software Engineer at DoorDash, where he led a 40+ engineer storage organization, and previously a Tech Lead at Meta. Earlier, as a founding engineer at Klaviyo, he built the real-time customer-data platform that scaled to 150,000 events per second. At Verren, he leads product and engineering end to end.',
-    href: 'https://www.seedzeng.com/',
-    label: 'seedzeng.com',
-  },
-  {
-    img: hansenImg,
-    name: 'Hansen Liang',
-    role: 'Founder & CEO',
-    bio: "Hansen is a 0-to-1 product and business leader who helped take Klaviyo Service and Klaviyo Reviews from concept to market. He has shipped more than a dozen products across software and hardware and leads Verren's go-to-market, partnerships, and company strategy.",
-    href: 'https://www.thehansenliang.com/',
-    label: 'thehansenliang.com',
-  },
-  {
-    img: tylerImg,
-    name: 'Tyler Calder, CFP®',
-    role: 'Advisor',
-    bio: 'Tyler is a Partner at Cerity Partners and a CFP® advising business owners and families across New England. Known for a plan-first approach, he integrates investment management with tax and estate strategy — and helps ensure Verren is built around the realities of high-trust advisory work.',
-    href: 'https://ceritypartners.com/team/tyler-calder/',
-    label: 'ceritypartners.com',
-  },
-];
+import { getCopy } from '../i18n/copy';
+const t = getCopy(Astro.currentLocale);
+const photos = [seedImg, hansenImg, tylerImg];
+const team = t.team.members.map((m, i) => ({ ...m, img: photos[i] }));
 ---
 
 <section id="team" class="py-24 md:py-32">
   {/* no title — the chip and the three bios carry it */}
   <div class="v-container md:border-t md:border-hairline md:pt-4">
-    <span class="v-chip reveal">The team</span>
+    <span class="v-chip reveal">{t.team.chip}</span>
   </div>
 
   <div class="v-container mt-10 md:mt-14">

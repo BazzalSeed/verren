@@ -11,6 +11,17 @@
  * - `lead` = the dark clause of a title; `tail`/`rest` = the muted remainder.
  * - Strings containing `{n}` are JS templates (count placeholders).
  * - Names of fictional clients stay in English in both locales.
+ *
+ * Copy guardrails (apply to every locale)
+ * - No fake trust signals: no SOC 2 / certification badges, testimonials,
+ *   client logos, or AUM claims until they are real.
+ * - Regulator/standard names only as "designed for / designed around" —
+ *   never as a compliance claim.
+ * - Banned phrasing: "data never leaves your firm" (it does leave — to OUR
+ *   cloud; say "never sent to a third-party AI provider" instead).
+ * - "CRM" appears as a contrast to us, never as our category.
+ * - All mock client data stays obviously fictional.
+ * - Emphasis = dark-ink lead + muted tail; never actual bold weight.
  */
 
 export type Locale = 'en' | 'zh';
@@ -93,8 +104,8 @@ const en = {
       },
       {
         num: '02',
-        lead: 'The big teams hired people. You got a CRM.',
-        body: "Mega-teams run on associates and a chief of staff — someone whose whole job is knowing everything and handling everything. Most advisors got a filing cabinet instead: it remembers nothing you don't type and does nothing you don't click.",
+        lead: "The big teams hired people. You got a CRM that's always out of date.",
+        body: "Mega-teams run on associates and a chief of staff — someone whose whole job is knowing everything and handling everything. Most advisors got a database that's out of sync the moment a meeting ends: it remembers nothing you don't type and does nothing you don't click.",
         stat: '41%',
         statLabel: 'of advisor time actually spent with clients',
         source: 'Kitces Research',
@@ -392,8 +403,8 @@ const zh: Copy = {
       },
       {
         num: '02',
-        lead: '大团队雇了人，你只得到一个 CRM。',
-        body: '头部团队有助理、有幕僚长 — 有人专职记住一切、打理一切。多数顾问得到的却是一个档案柜：你不输入它就不记得，你不点击它就什么都不做。',
+        lead: '大团队雇了人，你只得到一个永远过期的 CRM。',
+        body: '头部团队有助理、有幕僚长 — 有人专职记住一切、打理一切。多数顾问得到的却是一个会议一结束就不同步的数据库：你不输入它就不记得，你不点击它就什么都不做。',
         stat: '41%',
         statLabel: '顾问真正花在客户身上的时间占比',
         source: 'Kitces Research',

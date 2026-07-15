@@ -5,24 +5,22 @@
  * pre-rendered PNG collage), all floating on the gradient wash.
  * All mock data must stay obviously fictional.
  */
+import { getCopy } from '../i18n/copy';
+const t = getCopy(Astro.currentLocale);
+const h = t.hero;
 ---
 
 <section class="hero v-container">
   <div class="hero-inner">
     <div class="hero-copy">
-      <span class="hero-label reveal">For financial advisors &amp; RIAs</span>
-      <h1 class="reveal text-h1 text-ink-title" data-reveal-delay="60">Your AI Chief of Staff.</h1>
-      <p class="reveal mt-4 max-w-[400px] text-base text-ink-body" data-reveal-delay="120">
-        AI that remembers every client detail, preps every meeting, and handles
-        the follow-through — always with your approval.
-      </p>
+      <span class="hero-label reveal">{h.label}</span>
+      <h1 class="reveal text-h1 text-ink-title" data-reveal-delay="60">{h.h1}</h1>
+      <p class="reveal mt-4 max-w-[400px] text-base text-ink-body" data-reveal-delay="120">{h.sub}</p>
       <div class="reveal mt-5 flex flex-wrap items-center gap-2" data-reveal-delay="180">
-        <a class="v-btn v-btn--primary" href="#waitlist">Request early access <span class="arrow">→</span></a>
-        <a class="v-btn" href="#features">See how it works</a>
+        <a class="v-btn v-btn--primary" href="#waitlist">{h.ctaPrimary} <span class="arrow">→</span></a>
+        <a class="v-btn" href="#features">{h.ctaSecondary}</a>
       </div>
-      <p class="hero-kicker reveal" data-reveal-delay="240">
-        On models we run ourselves — client data never touches a third-party AI provider
-      </p>
+      <p class="hero-kicker reveal" data-reveal-delay="240">{h.kicker}</p>
     </div>
 
     <div class="hero-stack-outer" aria-hidden="true">
@@ -40,41 +38,19 @@
             </div>
             <div class="frame-main">
               <div class="book-head">
-                <span class="book-title">Your book</span>
-                <span class="book-meta">128 households · all current</span>
+                <span class="book-title">{h.book.title}</span>
+                <span class="book-meta">{h.book.meta}</span>
               </div>
-              <div class="book-row">
-                <span class="book-avatar">PN</span>
-                <span class="book-cell">
-                  <span class="book-name">Priya Natarajan</span>
-                  <span class="book-note">Follow-up drafted after Tuesday's review</span>
-                </span>
-                <span class="book-tag book-tag--ok">Prepped</span>
-              </div>
-              <div class="book-row">
-                <span class="book-avatar">SO</span>
-                <span class="book-cell">
-                  <span class="book-name">Sam Okafor</span>
-                  <span class="book-note">Inheritance mention — added to profile</span>
-                </span>
-                <span class="book-tag">Signal</span>
-              </div>
-              <div class="book-row">
-                <span class="book-avatar">DW</span>
-                <span class="book-cell">
-                  <span class="book-name">Dana Whitfield</span>
-                  <span class="book-note">Quiet 94 days — check-in ready for approval</span>
-                </span>
-                <span class="book-tag">Outreach</span>
-              </div>
-              <div class="book-row">
-                <span class="book-avatar">MT</span>
-                <span class="book-cell">
-                  <span class="book-name">Miguel Torres</span>
-                  <span class="book-note">RMD due in 12 days</span>
-                </span>
-                <span class="book-tag">Due</span>
-              </div>
+              {h.book.rows.map((r) => (
+                <div class="book-row">
+                  <span class="book-avatar">{r.initials}</span>
+                  <span class="book-cell">
+                    <span class="book-name">{r.name}</span>
+                    <span class="book-note">{r.note}</span>
+                  </span>
+                  <span class:list={['book-tag', r.ok && 'book-tag--ok']}>{r.tag}</span>
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -83,26 +59,27 @@
         <div class="hero-card hero-card--approval">
           <div class="approval-row">
             <div>
-              <div class="approval-text">Book follow-up — Thu 10:00</div>
-              <div class="approval-sub" data-result="On your calendar · invite sent to Jordan">Suggested from today's meeting notes</div>
+              <div class="approval-text">{h.approval.title}</div>
+              <div class="approval-sub" data-result={h.approval.result}>{h.approval.sub}</div>
             </div>
-            <span class="approve-btn">✓ Approve</span>
+            <span class="approve-btn" data-approved={h.approval.approved}>{h.approval.approve}</span>
           </div>
           <div class="email-draft">
-            <div class="label">Drafted follow-up</div>
-            <div class="snippet">“Hi Jordan — great catching up…”</div>
+            <div class="label">{h.approval.draftLabel}</div>
+            <div class="snippet">{h.approval.snippet}</div>
           </div>
         </div>
 
         <!-- Card: front — client profile -->
         <div class="hero-card hero-card--profile">
-          <div class="card-eyebrow">Household</div>
-          <div class="card-name">Jordan Ellis</div>
-          <div class="card-sub">Household · $2.4M</div>
-          <div class="card-updated"><span class="dot v-live-dot"></span> <span class="card-updated-text">Profile updated 2m ago</span></div>
+          <div class="card-eyebrow">{h.profile.eyebrow}</div>
+          <div class="card-name">{h.profile.name}</div>
+          <div class="card-sub">{h.profile.sub}</div>
+          <div class="card-updated"><span class="dot v-live-dot"></span> <span class="card-updated-text" data-now={h.profile.updatedNow} data-rest={h.profile.updatedRest}>{h.profile.updatedRest}</span></div>
           <div class="card-divider"></div>
-          <div class="card-signal"><span class="tag">Signal</span><span>Life event — new job, VP Eng</span></div>
-          <div class="card-signal"><span class="tag">Due</span><span>Next RMD due in 41 days</span></div>
+          {h.profile.signals.map((sig) => (
+            <div class="card-signal"><span class="tag">{sig.tag}</span><span>{sig.text}</span></div>
+          ))}
         </div>
       </div>
       </div>
@@ -577,7 +554,7 @@
         setTimeout(() => {
           btn.classList.remove('fv-clicked');
           btn.classList.add('fv-done');
-          btn.textContent = '✓ Approved';
+          btn.textContent = btn.dataset.approved ?? btnLabel;
           sub.textContent = sub.dataset.result ?? rest;
         }, 380);
         setTimeout(() => {
@@ -592,8 +569,10 @@
     const updated = document.querySelector<HTMLElement>('.card-updated-text');
     if (updated) {
       let i = 0;
+      const restTxt = updated.dataset.rest ?? updated.textContent ?? '';
+      const nowTxt = updated.dataset.now ?? restTxt;
       setInterval(() => {
-        updated.textContent = i % 2 ? 'Profile updated 2m ago' : 'Profile updated just now';
+        updated.textContent = i % 2 ? restTxt : nowTxt;
         i++;
       }, 3400);
     }

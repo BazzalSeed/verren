@@ -5,32 +5,9 @@
  * pinned. Pages pair a display-size stat (left, with its source cited) with
  * the lead + body (offset right).
  */
-const pages = [
-  {
-    num: '01',
-    lead: 'Your edge is the relationship. Your calendar disagrees.',
-    body: 'Barely 4 hours of a 10-hour day are spent with clients. The rest — meeting prep, notes, follow-ups, chasing your own promises — is admin, done by the most expensive person in the firm.',
-    stat: '1,350 hrs',
-    statLabel: 'a year of admin on a 100-client book — two-thirds of a full-time hire',
-    source: 'Kitces Research; GReminders',
-  },
-  {
-    num: '02',
-    lead: 'The big teams hired people. You got a CRM.',
-    body: "Mega-teams run on associates and a chief of staff — someone whose whole job is knowing everything and handling everything. Most advisors got a filing cabinet instead: it remembers nothing you don't type and does nothing you don't click.",
-    stat: '41%',
-    statLabel: 'of advisor time actually spent with clients',
-    source: 'Kitces Research',
-  },
-  {
-    num: '03',
-    lead: "The cost isn't hours — it's growth.",
-    body: "Stale profiles and dropped follow-ups are how prospects go cold and good clients quietly drift. AI notetakers won't catch it — they only write things down. Nobody has given the independent advisor someone who remembers everything and handles everything.",
-    stat: '1.4×',
-    statLabel: 'faster AUM growth at firms with automated workflows than at manual ones (16.6% vs 12.1%)',
-    source: 'Schwab RIA Benchmarking',
-  },
-];
+import { getCopy } from '../i18n/copy';
+const t = getCopy(Astro.currentLocale);
+const pages = t.problem.pages;
 ---
 
 <section id="problem" class="pt-24 md:pt-32">
@@ -39,7 +16,7 @@ const pages = [
       <div class="vpin-head">
         <div class="v-container md:border-t md:border-hairline md:pt-4">
           <div class="flex items-center justify-between">
-            <span class="v-chip">The problem</span>
+            <span class="v-chip">{t.problem.chip}</span>
             <div class="vpin-index" aria-hidden="true">
               {pages.map((p) => <span class="vpin-num">{p.num}</span>)}
             </div>

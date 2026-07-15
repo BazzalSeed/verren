@@ -3,36 +3,29 @@
  * The statement-block, in Verren's own voice — first person, signed by hand.
  * Pure typography, no imagery.
  */
+import { getCopy } from '../i18n/copy';
+const t = getCopy(Astro.currentLocale);
 ---
 
 <section id="introducing" class="py-24 md:py-32">
   <div class="v-container md:border-t md:border-hairline md:pt-4">
     <div class="v-grid gap-y-4">
       <div class="col-span-4">
-        <span class="v-chip reveal">Introducing Verren</span>
+        <span class="v-chip reveal">{t.introducing.chip}</span>
       </div>
       <div class="col-span-4 md:col-span-6 md:col-start-5">
         <div class="max-w-[580px] space-y-[1em] text-h4 text-ink-body">
-          <p class="reveal" data-reveal-delay="60">
-            <strong>I'm Verren — a chief of staff for your practice.</strong> I connect
-            to your email and calendar, work alongside the CRM you already run, and
-            start doing the work — nothing to migrate, nothing to bet the practice on.
-          </p>
-          <p class="reveal" data-reveal-delay="140">
-            <strong>I keep your book current so you don't have to.</strong> Every client
-            profile updates itself — household changes, goals, concerns, commitments —
-            and I tell you what matters before you'd otherwise find out.
-          </p>
-          <p class="reveal" data-reveal-delay="220">
-            <strong>I handle the follow-through — with your approval.</strong> Anything
-            I'm about to do, I show you first, in full. Nothing runs until you say go.
-          </p>
+          {t.introducing.paras.map((para, i) => (
+            <p class="reveal" data-reveal-delay={String(60 + i * 80)}>
+              <strong>{para.lead}</strong> {para.rest}
+            </p>
+          ))}
           <p class="reveal" data-reveal-delay="300">
-            <strong>You stay the advisor. I'll do everything else.</strong>
+            <strong>{t.introducing.kicker}</strong>
           </p>
         </div>
         <div class="reveal mt-8" data-reveal-delay="360">
-          <span class="hand-sign">— Verren</span>
+          <span class="hand-sign">{t.introducing.sign}</span>
         </div>
       </div>
     </div>

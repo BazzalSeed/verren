@@ -1,17 +1,21 @@
 ---
+import '../styles/global.css';
+import { getCopy, type Locale } from '../i18n/copy';
+
 interface Props {
   title?: string;
   description?: string;
 }
-const {
-  title = 'Verren — the AI chief of staff for financial advisors',
-  description = 'AI that remembers every client detail, preps every meeting, and handles the follow-through — always with your approval, on models we run ourselves.',
-} = Astro.props;
-import '../styles/global.css';
+const lang = (Astro.currentLocale ?? 'en') as Locale;
+const t = getCopy(lang);
+const { title = t.meta.title, description = t.meta.description } = Astro.props;
+// language toggle target (en is unprefixed, zh lives at /zh)
+const otherLocaleHref = lang === 'zh' ? '/' : '/zh/';
+const otherLocaleLabel = lang === 'zh' ? 'EN' : '中文';
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang={lang === 'zh' ? 'zh-CN' : 'en'}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -25,14 +29,19 @@ import '../styles/global.css';
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Verren" />
     <meta property="og:title" content={title} />
-    <meta property="og:description" content="Capture anything. Extract what matters. Take action with confidence." />
-    <meta property="og:url" content="https://verren.app/" />
+    <meta property="og:description" content={t.meta.ogDescription} />
+    <meta property="og:url" content={lang === 'zh' ? 'https://verren.app/zh/' : 'https://verren.app/'} />
+
+    {/* locale alternates for search engines */}
+    <link rel="alternate" hreflang="en" href="https://verren.app/" />
+    <link rel="alternate" hreflang="zh" href="https://verren.app/zh/" />
+    <link rel="alternate" hreflang="x-default" href="https://verren.app/" />
     <meta property="og:image" content="https://verren.app/og.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
-    <meta name="twitter:description" content="Capture anything. Extract what matters. Take action with confidence." />
+    <meta name="twitter:description" content={t.meta.ogDescription} />
     <meta name="twitter:image" content="https://verren.app/og.png" />
 
     <link rel="preconnect" href="https://api.fontshare.com" />
@@ -47,6 +56,27 @@ import '../styles/global.css';
     <script is:inline>
       document.documentElement.classList.add('js-anim');
     </script>
+
+    {/* Locale adaptation — runs before paint. An explicit toggle choice
+        (localStorage) always wins; otherwise zh-preferring browsers landing
+        on / are sent to /zh/ once. Static-host friendly (no server neg.). */}
+    <script is:inline>
+      (function () {
+        try {
+          var pref = localStorage.getItem('v-locale');
+          var onZh = location.pathname === '/zh' || location.pathname.indexOf('/zh/') === 0;
+          if (pref === 'en' && onZh) location.replace('/');
+          else if (pref === 'zh' && !onZh) location.replace('/zh/');
+          else if (!pref && !onZh) {
+            var langs = navigator.languages || [navigator.language || ''];
+            for (var i = 0; i < langs.length; i++) {
+              if (/^zh/i.test(langs[i])) { location.replace('/zh/'); break; }
+              if (/^en/i.test(langs[i])) break; // en outranks zh in their list
+            }
+          }
+        } catch (_) {}
+      })();
+    </script>
   </head>
   <body>
     {/* hero atmosphere — fixed gradient wash; fades out as you scroll (scrubbed) */}
@@ -56,14 +86,11 @@ import '../styles/global.css';
       <div class="v-container flex h-[60px] items-center justify-between gap-6">
         <a class="v-wordmark no-underline" href="#top">Verren</a>
         <nav class="hidden items-center gap-1 md:flex">
-          <a class="v-navlink" href="#problem">The problem</a>
-          <a class="v-navlink" href="#introducing">Introducing</a>
-          <a class="v-navlink" href="#features">Features</a>
-          <a class="v-navlink" href="#security">Security</a>
-          <a class="v-navlink" href="#team">Team</a>
+          {t.nav.links.map((l) => <a class="v-navlink" href={l.href}>{l.label}</a>)}
+          <a class="v-navlink v-lang" href={otherLocaleHref}>{otherLocaleLabel}</a>
         </nav>
         <div class="flex items-center gap-3">
-          <a class="v-btn v-btn--primary hidden sm:inline-flex" href="#waitlist">Request early access <span class="arrow">→</span></a>
+          <a class="v-btn v-btn--primary hidden sm:inline-flex" href="#waitlist">{t.nav.cta} <span class="arrow">→</span></a>
           <button id="nav-toggle" type="button" aria-label="Menu" aria-expanded="false" class="v-burger md:hidden">
             <span></span><span></span><span></span>
           </button>
@@ -71,12 +98,9 @@ import '../styles/global.css';
       </div>
       <div id="nav-menu" class="v-menu hidden md:hidden">
         <div class="v-container flex flex-col gap-1 pb-4">
-          <a class="v-navlink" href="#problem" data-nav-link>The problem</a>
-          <a class="v-navlink" href="#introducing" data-nav-link>Introducing</a>
-          <a class="v-navlink" href="#features" data-nav-link>Features</a>
-          <a class="v-navlink" href="#security" data-nav-link>Security</a>
-          <a class="v-navlink" href="#team" data-nav-link>Team</a>
-          <a class="v-btn v-btn--primary mt-2 w-max" href="#waitlist" data-nav-link>Request early access <span class="arrow">→</span></a>
+          {t.nav.links.map((l) => <a class="v-navlink" href={l.href} data-nav-link>{l.label}</a>)}
+          <a class="v-navlink v-lang" href={otherLocaleHref} data-nav-link>{otherLocaleLabel}</a>
+          <a class="v-btn v-btn--primary mt-2 w-max" href="#waitlist" data-nav-link>{t.nav.cta} <span class="arrow">→</span></a>
         </div>
       </div>
     </header>
@@ -87,8 +111,8 @@ import '../styles/global.css';
 
     <footer class="border-t border-hairline py-10">
       <div class="v-container flex flex-col gap-1.5">
-        <div class="text-sm text-ink-sub">Verren — the AI chief of staff for financial advisors.</div>
-        <div class="text-xs text-ink-subtle">Early access · © 2026</div>
+        <div class="text-sm text-ink-sub">{t.footer.line1}</div>
+        <div class="text-xs text-ink-subtle">{t.footer.line2}</div>
       </div>
     </footer>
 
@@ -117,6 +141,8 @@ import '../styles/global.css';
         border-bottom-color: var(--v-hairline);
       }
       .v-burger {
+        /* unlayered component CSS outranks Tailwind's md:hidden utility, so
+           the desktop hide must live here too */
         display: inline-flex;
         flex-direction: column;
         justify-content: center;
@@ -134,6 +160,11 @@ import '../styles/global.css';
         width: 20px;
         background: currentColor;
         border-radius: 1px;
+      }
+      @media (min-width: 768px) {
+        .v-burger {
+          display: none;
+        }
       }
       .v-wordmark {
         font-family: var(--font-hand);
@@ -180,6 +211,15 @@ import '../styles/global.css';
           toggle.setAttribute('aria-expanded', String(open));
         });
         document.querySelectorAll('[data-nav-link]').forEach((a) => a.addEventListener('click', closeMenu));
+
+        // language toggle: an explicit choice overrides browser-language detection
+        document.querySelectorAll<HTMLAnchorElement>('.v-lang').forEach((a) =>
+          a.addEventListener('click', () => {
+            try {
+              localStorage.setItem('v-locale', a.getAttribute('href')?.startsWith('/zh') ? 'zh' : 'en');
+            } catch (_) {}
+          })
+        );
       }
 
       // ---- Pattern 1: one-shot reveals (IntersectionObserver → CSS transition) ----

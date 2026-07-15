@@ -1,58 +1,54 @@
 ---
 import SectionHeader from './SectionHeader.astro';
+import { getCopy } from '../i18n/copy';
+const t = getCopy(Astro.currentLocale);
+const w = t.waitlist;
 ---
 
 <section id="waitlist" class="py-24 md:py-32">
-  <SectionHeader chip="Early access" lead="Become a founding design partner." />
+  <SectionHeader chip={w.chip} lead={w.title} />
 
   <div class="v-container mt-10 md:mt-14">
     <div class="v-grid">
       <div class="col-span-4 md:col-span-6 md:col-start-5">
         <p class="reveal reveal--fade max-w-[580px] text-h4 text-ink-body">
-          <strong>We're onboarding a small group of advisors and RIA firms</strong> to
-          shape the product around real workflows and real compliance requirements. Early
-          access, a direct line to the founders, and your feedback in the product on a
-          weekly cadence.
+          <strong>{w.bodyLead}</strong>{w.bodyRest}
         </p>
 
         <form class="reveal mt-9 grid max-w-[480px] gap-4" id="waitlist-form" data-reveal-delay="100" novalidate>
           <div>
-            <label class="wl-label" for="wl-name">Name</label>
+            <label class="wl-label" for="wl-name">{w.nameLabel}</label>
             <input class="wl-field" id="wl-name" name="name" type="text" autocomplete="name" />
           </div>
           <div>
-            <label class="wl-label" for="wl-email">Work email</label>
-            <input class="wl-field" id="wl-email" name="email" type="email" placeholder="you@yourfirm.com" autocomplete="email" required />
-            <p class="wl-field-error hidden" id="wl-email-hint">
-              Please use your firm email — personal addresses (Gmail, Yahoo, …) can't be verified.
-            </p>
+            <label class="wl-label" for="wl-email">{w.emailLabel}</label>
+            <input class="wl-field" id="wl-email" name="email" type="email" placeholder={w.emailPlaceholder} autocomplete="email" required />
+            <p class="wl-field-error hidden" id="wl-email-hint">{w.emailError}</p>
           </div>
           <div>
-            <label class="wl-label" for="wl-firm">Firm website</label>
-            <input class="wl-field" id="wl-firm" name="firm" type="text" placeholder="yourfirm.com" autocomplete="url" />
-            <p class="wl-field-error hidden" id="wl-firm-hint">Enter a valid website — e.g. yourfirm.com</p>
+            <label class="wl-label" for="wl-firm">{w.firmLabel}</label>
+            <input class="wl-field" id="wl-firm" name="firm" type="text" placeholder={w.firmPlaceholder} autocomplete="url" />
+            <p class="wl-field-error hidden" id="wl-firm-hint">{w.firmError}</p>
           </div>
           <div>
-            <label class="wl-label" for="wl-crm">Current CRM <span class="wl-opt">(optional)</span></label>
-            <input class="wl-field" id="wl-crm" name="crm" type="text" placeholder="Redtail, Wealthbox, Salesforce…" />
+            <label class="wl-label" for="wl-crm">{w.crmLabel} <span class="wl-opt">{w.optional}</span></label>
+            <input class="wl-field" id="wl-crm" name="crm" type="text" placeholder={w.crmPlaceholder} />
           </div>
           <div>
-            <label class="wl-label" for="wl-note">Tell us about your practice <span class="wl-opt">(optional)</span></label>
+            <label class="wl-label" for="wl-note">{w.noteLabel} <span class="wl-opt">{w.optional}</span></label>
             <textarea class="wl-field" id="wl-note" name="note" rows="3"></textarea>
           </div>
           {/* Formspree extras: subject line + honeypot (bots fill it, humans never see it) */}
-          <input type="hidden" name="_subject" value="Verren — early access request" />
+          <input type="hidden" name="_subject" value={w.subject} />
           <input class="hidden" type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true" />
-          <p class="wl-error hidden" id="wl-error" role="alert">
-            Something went wrong — your email wasn't lost, try again.
-          </p>
-          <button class="v-btn v-btn--primary wl-submit" type="submit" id="wl-submit">
-            Request early access <span class="arrow">→</span>
+          <p class="wl-error hidden" id="wl-error" role="alert">{w.error}</p>
+          <button class="v-btn v-btn--primary wl-submit" type="submit" id="wl-submit" data-sending={w.sending}>
+            {w.submit} <span class="arrow">→</span>
           </button>
         </form>
 
         <div class="wl-success mt-9 hidden max-w-[480px] rounded-lg bg-brand-wash p-5 text-base text-ink-title" id="waitlist-success" role="status">
-          You're on the list — we'll be in touch shortly.
+          {w.success}
         </div>
       </div>
     </div>
@@ -110,6 +106,7 @@ import SectionHeader from './SectionHeader.astro';
   const success = document.getElementById('waitlist-success');
   const errorEl = document.getElementById('wl-error');
   const submitBtn = document.getElementById('wl-submit') as HTMLButtonElement | null;
+  const submitHTML = submitBtn?.innerHTML ?? '';
   const emailEl = document.getElementById('wl-email') as HTMLInputElement | null;
   const emailHint = document.getElementById('wl-email-hint');
 
@@ -160,7 +157,7 @@ import SectionHeader from './SectionHeader.astro';
     }
     if (submitBtn) {
       submitBtn.disabled = true;
-      submitBtn.textContent = 'Sending…';
+      submitBtn.textContent = submitBtn.dataset.sending ?? 'Sending…';
     }
     try {
       // Formspree — same account as seedzeng.com, delivers to the founders' inbox.
@@ -177,7 +174,7 @@ import SectionHeader from './SectionHeader.astro';
       errorEl?.classList.remove('hidden');
       if (submitBtn) {
         submitBtn.disabled = false;
-        submitBtn.innerHTML = 'Request early access <span class="arrow">→</span>';
+        submitBtn.innerHTML = submitHTML;
       }
     }
   });
