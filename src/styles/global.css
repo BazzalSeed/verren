@@ -568,6 +568,7 @@
     display: block;
     opacity: 1 !important;
     transform: none !important;
+    visibility: visible !important;
     pointer-events: auto !important;
     padding-block: 36px;
   }
