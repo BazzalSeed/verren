@@ -6,19 +6,19 @@
  * no zh toggle) and with noindex. The live site's Layout.astro is untouched.
  */
 import '../styles/global.css';
-import { getCopy } from '../i18n/copy';
-import { vc } from '../content/v2';
+import { getCopy, type Locale } from '../i18n/copy';
+import { getV2Copy } from '../content/v2';
 
-interface Props {
-  /* per-variant head copy — /claude-team passes its own; defaults to /claude */
-  meta?: { title: string; description: string };
-}
-const t = getCopy('en');
-const meta = Astro.props.meta ?? vc.meta;
+const lang = (Astro.currentLocale ?? 'en') as Locale;
+const t = getCopy(lang);
+const meta = getV2Copy(lang).meta;
+// language toggle target (en at /v2, zh at /zh/v2)
+const otherLocaleHref = lang === 'zh' ? '/v2/' : '/zh/v2/';
+const otherLocaleLabel = lang === 'zh' ? 'EN' : '中文';
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang={lang === 'zh' ? 'zh-CN' : 'en'}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -50,6 +50,7 @@ const meta = Astro.props.meta ?? vc.meta;
         <a class="v-wordmark no-underline" href="#top">Verren</a>
         <nav class="hidden items-center gap-1 md:flex">
           {t.nav.links.map((l) => <a class="v-navlink" href={l.href}>{l.label}</a>)}
+          <a class="v-navlink" href={otherLocaleHref}>{otherLocaleLabel}</a>
         </nav>
         <div class="flex items-center gap-3">
           <a class="v-btn v-btn--primary hidden sm:inline-flex" href="#waitlist">{t.nav.cta} <span class="arrow">→</span></a>

@@ -10,30 +10,11 @@
 import PipelineVisual from './PipelineVisual.astro';
 import RoadmapVisual from './RoadmapVisual.astro';
 import DayVisual from './DayVisual.astro';
-import { vc } from '../../content/v2';
+import { getV2Copy } from '../../content/v2';
 
-interface FlowPage {
-  num: string;
-  id: string;
-  title: string;
-  body: string;
-}
-interface FlowsCopy {
-  chip: string;
-  /* plain header (/claude)… */
-  title?: string;
-  /* …or signature header (/claude-team): pre + hand-rendered "Verren" + post */
-  titlePre?: string;
-  titleHand?: string;
-  titlePost?: string;
-  pages: FlowPage[];
-}
-interface Props {
-  /* per-variant section copy — /claude-team passes its own; defaults to
-     /claude's. The three visuals are voice-neutral and shared. */
-  flows?: FlowsCopy;
-}
-const f: FlowsCopy = Astro.props.flows ?? vc.flows;
+// locale-aware section copy; the signature header renders the name in the
+// wordmark hand between titlePre/titlePost
+const f = getV2Copy(Astro.currentLocale).flows;
 const [p1, p2, p3] = f.pages;
 ---
 
@@ -50,11 +31,7 @@ const [p1, p2, p3] = f.pages;
             </div>
             <div class="col-span-4 md:col-span-6 md:col-start-5">
               <h2 class="reveal text-h1 text-ink-body" data-reveal-delay="80">
-                {f.titleHand ? (
-                  <strong>{f.titlePre} <span class="hand-inline">{f.titleHand}</span> {f.titlePost}</strong>
-                ) : (
-                  <strong>{f.title}</strong>
-                )}
+                <strong>{f.titlePre} <span class="hand-inline">{f.titleHand}</span> {f.titlePost}</strong>
               </h2>
             </div>
             <div class="hidden md:col-span-2 md:col-start-11 md:flex md:justify-end">

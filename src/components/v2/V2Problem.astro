@@ -1,13 +1,13 @@
 ---
 /**
- * V3Problem — /v3's fork of the live Problem section: identical pinned
+ * V2Problem — /v2's fork of the live Problem section: identical pinned
  * three-page layout (big stat left, lead + body right), but the pages are
  * the lifecycle arc that maps 1:1 onto the flows section — expensive to
- * win → slow to start → relentless to keep. The live Problem.astro is
- * untouched.
+ * win → slow to start → relentless to keep. Locale-aware (en + zh). The
+ * live Problem.astro is untouched.
  */
-import { v3 } from '../../content/v3';
-const t = { problem: v3.problem };
+import { getV2Copy } from '../../content/v2';
+const t = getV2Copy(Astro.currentLocale);
 const pages = t.problem.pages;
 ---
 
@@ -17,7 +17,7 @@ const pages = t.problem.pages;
       <div class="vpin-head">
         <div class="v-container md:border-t md:border-hairline md:pt-4">
           <div class="flex items-center justify-between">
-            <span class="v-chip">{t.problem.chip}</span>
+            <span class="v-chip">{t.problem.chip}</span>{/* locale-aware chip */}
             <div class="vpin-index" aria-hidden="true">
               {pages.map((p) => <span class="vpin-num">{p.num}</span>)}
             </div>

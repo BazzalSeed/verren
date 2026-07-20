@@ -1,0 +1,41 @@
+---
+/**
+ * V2Introducing — /v2's fork of the live Introducing section: identical
+ * markup and typography, but the statement-block drops the chief-of-staff
+ * identity and bridges the three lifecycle problems straight into the
+ * flows. Locale-aware (en + zh). The live Introducing.astro is untouched.
+ */
+import { getV2Copy } from '../../content/v2';
+const intro = getV2Copy(Astro.currentLocale).introducing;
+---
+
+<section id="introducing" class="py-24 md:py-32">
+  <div class="v-container md:border-t md:border-hairline md:pt-4">
+    <div class="v-grid gap-y-4">
+      <div class="col-span-4">
+        <span class="v-chip reveal">{intro.chip}</span>
+      </div>
+      <div class="col-span-4 md:col-span-6 md:col-start-5">
+        <div class="max-w-[580px] space-y-[1em] text-h4 text-ink-body">
+          {intro.paras.map((para, i) => (
+            <p class="reveal" data-reveal-delay={String(60 + i * 80)}>
+              <strong>{para.lead}</strong> {para.rest}
+            </p>
+          ))}
+          <p class="reveal" data-reveal-delay="300">
+            <strong>{intro.kicker}</strong>
+          </p>
+        </div>
+        <div class="reveal mt-8" data-reveal-delay="360">
+          <span class="hand-sign">{intro.sign}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .v-chip {
+    font-family: 'DM Mono', ui-monospace, monospace;
+  }
+</style>

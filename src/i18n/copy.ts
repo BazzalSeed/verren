@@ -53,7 +53,7 @@ const en = {
 
   hero: {
     label: 'For financial advisors & RIAs',
-    h1: 'Your AI Chief of Staff.',
+    h1: 'The AI chief of staff for financial advisors.',
     sub: 'AI that remembers every client detail, preps every meeting, and handles the follow-through — always with your approval.',
     ctaPrimary: 'Request early access',
     ctaSecondary: 'See how it works',
@@ -381,7 +381,7 @@ const zh: Copy = {
 
   hero: {
     label: '专为理财顾问与独立注册投资顾问（RIA）打造',
-    h1: '你的专属 AI 助理。',
+    h1: '理财顾问的专属 AI 助理。',
     sub: '记住每位客户的重要信息，准备每场会议，推进每项后续工作——每一步都由你确认。',
     ctaPrimary: '申请早期体验',
     ctaSecondary: '了解如何运作',

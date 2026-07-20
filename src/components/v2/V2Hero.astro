@@ -7,19 +7,15 @@
  * over the live hero object).
  */
 import { getCopy } from '../../i18n/copy';
-import { vc } from '../../content/v2';
+import { getV2Copy } from '../../content/v2';
 
-interface Props {
-  /* per-variant copy (label/h1/sub) merged over the live hero — defaults
-     to /v2's converged copy. Card-stack data stays live. */
-  overrides?: { label: string; h1: string; sub: string };
-  /* audience line promoted from quiet eyebrow to the headline's address
-     line — larger, title ink (still size/ink hierarchy, never weight) */
-  loudLabel?: boolean;
-}
-const t = getCopy('en');
-const h = { ...t.hero, ...(Astro.props.overrides ?? vc.hero) };
-const loudLabel = Astro.props.loudLabel ?? false;
+// locale-aware: /v2's copy (label/h1/sub) merged over the live hero so the
+// card-stack mock data stays identical to the live site in both locales.
+// The audience label always renders loud here — it is the headline's
+// address line (size + ink hierarchy, never weight).
+const t = getCopy(Astro.currentLocale);
+const h = { ...t.hero, ...getV2Copy(Astro.currentLocale).hero };
+const loudLabel = true;
 ---
 
 <section class="hero v-container">

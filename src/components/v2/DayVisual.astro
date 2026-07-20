@@ -7,21 +7,21 @@
  * change class/text only. setInterval-driven; resting markup shows the
  * completed day.
  */
-import { vc } from '../../content/v2';
-const v = vc.ongoingVisual;
+import { getV2Copy } from '../../content/v2';
+const v = getV2Copy(Astro.currentLocale).ongoingVisual;
 ---
 
-<div class="vcd" aria-hidden="true" id="vcd" data-approve={v.approve} data-approved={v.approved}>
+<div class="vcd" aria-hidden="true" id="vcd" data-approve={v.approve} data-approved={v.approved} data-logged={v.logged}>
   <div class="vcd-label">
     {v.label}
     <span class="vcd-live"><span class="dot v-live-dot"></span> live</span>
   </div>
   {v.rows.map((r) => (
-    <div class="vcd-row" data-kind={r.status}>
+    <div class:list={['vcd-row', r.status === 'approval' && 'vcd-row--appr']} data-kind={r.status}>
       <span class="vcd-tool">{r.tool}</span>
       <span class="vcd-text">{r.text}</span>
       {r.status === 'approval' ? (
-        <span class="vcd-approve">{v.approved}</span>
+        <span class="vcd-approve logged">{v.logged}</span>
       ) : (
         <span class="vcd-status">{r.status}</span>
       )}
@@ -98,10 +98,6 @@ const v = vc.ongoingVisual;
     font-size: var(--text-sm);
     color: var(--v-ink-title);
     line-height: 1.4;
-    transition: opacity 400ms ease;
-  }
-  .vcd-row.pending .vcd-text {
-    opacity: 0.35;
   }
   .vcd-status {
     flex: none;
@@ -112,10 +108,23 @@ const v = vc.ongoingVisual;
     letter-spacing: 0.04em;
     text-transform: uppercase;
     color: #2e7d4f;
-    transition: color 300ms ease;
   }
-  .vcd-status.waiting {
-    color: var(--v-ink-subtle);
+  /* the day view is a LOG — the morning's three done lines show upfront;
+     the two approval rows arrive one by one, get approved, and settle to
+     "done · logged". Opacity/transform only; the card never changes height. */
+  @media (prefers-reduced-motion: no-preference) {
+    :global(.js-anim) .vcd-row--appr {
+      opacity: 0;
+      transform: translateY(8px);
+      transition:
+        opacity 550ms cubic-bezier(0.16, 1, 0.3, 1),
+        transform 550ms cubic-bezier(0.16, 1, 0.3, 1),
+        background 400ms ease;
+    }
+    :global(.js-anim) .vcd-row--appr.on {
+      opacity: 1;
+      transform: none;
+    }
   }
   .vcd-approve {
     flex: none;
@@ -129,12 +138,19 @@ const v = vc.ongoingVisual;
     background: #e9f6ee;
     color: #2e7d4f;
     border: 1px solid rgba(46, 125, 79, 0.18);
-    transition: transform 200ms ease, background 300ms ease, color 300ms ease, opacity 300ms ease;
+    transition: transform 200ms ease, background 300ms ease, color 300ms ease, opacity 300ms ease, border-color 300ms ease;
   }
-  .vcd-approve.idle {
-    background: var(--v-fill);
-    color: var(--v-ink-subtle);
-    border-color: var(--v-border-subtle);
+  /* after approval the button settles into the same quiet log line as the
+     morning's rows — approved things become history */
+  .vcd-approve.logged {
+    background: transparent;
+    border-color: transparent;
+    justify-content: flex-end;
+    font-family: 'DM Mono', ui-monospace, monospace;
+    font-size: 9px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #2e7d4f;
   }
   .vcd-foot {
     margin-top: 12px;
@@ -160,71 +176,80 @@ const v = vc.ongoingVisual;
 </style>
 
 <script>
-  // the day plays through: routine rows complete on their own; approval rows
-  // present the button, get "clicked" (fv-clicked/fv-done from global.css),
-  // then the day holds and restarts.
+  // The morning's three done lines show upfront; the two approval rows
+  // arrive one by one: Approve appears → gets "clicked" (fv-clicked/fv-done
+  // from global.css) → settles to "done · logged" like the rest of the log.
+  // Plays once each time the page becomes visible; re-arms after you leave.
   (() => {
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const root = document.getElementById('vcd');
     if (!root) return;
-    const rows = Array.from(root.querySelectorAll<HTMLElement>('.vcd-row'));
+    const apprRows = Array.from(root.querySelectorAll<HTMLElement>('.vcd-row--appr'));
     const approveTxt = root.dataset.approve ?? '✓ Approve';
     const approvedTxt = root.dataset.approved ?? '✓ Approved';
-
-    const reset = () => {
-      rows.forEach((r) => {
-        r.classList.add('pending');
-        r.classList.remove('active');
-        const st = r.querySelector<HTMLElement>('.vcd-status');
-        if (st) {
-          st.classList.add('waiting');
-          st.textContent = '·';
-        }
-        const btn = r.querySelector<HTMLElement>('.vcd-approve');
-        if (btn) {
-          btn.classList.add('idle');
-          btn.classList.remove('fv-clicked', 'fv-done');
-          btn.textContent = '·';
-        }
-      });
-    };
+    const loggedTxt = root.dataset.logged ?? 'done · logged';
 
     let step = 0;
+    let timer: ReturnType<typeof setInterval> | null = null;
+    let finished = false;
+
+    const reset = () => {
+      apprRows.forEach((r) => {
+        r.classList.remove('on', 'active');
+        const btn = r.querySelector<HTMLElement>('.vcd-approve');
+        if (btn) {
+          btn.classList.remove('fv-clicked', 'fv-done', 'logged');
+          btn.textContent = approveTxt;
+        }
+      });
+      step = 0;
+      finished = false;
+    };
+
+    const start = () => {
+      if (timer || finished) return;
+      const tick = () => {
+        if (step < apprRows.length) {
+          const row = apprRows[step];
+          const btn = row.querySelector<HTMLElement>('.vcd-approve');
+          row.classList.add('on', 'active');
+          // the ask appears, you click, it's approved, it becomes history —
+          // same one-way rhythm as the live site's approval visuals
+          setTimeout(() => btn?.classList.add('fv-clicked'), 900);
+          setTimeout(() => {
+            btn?.classList.remove('fv-clicked');
+            btn?.classList.add('fv-done');
+            if (btn) btn.textContent = approvedTxt;
+          }, 1250);
+          setTimeout(() => {
+            btn?.classList.remove('fv-done');
+            btn?.classList.add('logged');
+            if (btn) btn.textContent = loggedTxt;
+            row.classList.remove('active');
+          }, 2500);
+          step++;
+        } else {
+          // day done — hold until the section is re-entered
+          if (timer) clearInterval(timer);
+          timer = null;
+          finished = true;
+        }
+      };
+      tick(); // first approval appears immediately — no empty beat
+      timer = setInterval(tick, 3100);
+    };
+
+    const pageEl = (root.closest('.vpin-page') ?? root) as HTMLElement;
+    const isShowing = () => {
+      const r = pageEl.getBoundingClientRect();
+      if (r.bottom <= 0 || r.top >= innerHeight || r.width === 0) return false;
+      const cs = getComputedStyle(pageEl);
+      return cs.visibility !== 'hidden' && parseFloat(cs.opacity || '1') > 0.6;
+    };
     reset();
     setInterval(() => {
-      if (step < rows.length) {
-        const row = rows[step];
-        row.classList.remove('pending');
-        row.classList.add('active');
-        const st = row.querySelector<HTMLElement>('.vcd-status');
-        const btn = row.querySelector<HTMLElement>('.vcd-approve');
-        if (st) {
-          setTimeout(() => {
-            st.classList.remove('waiting');
-            st.textContent = row.dataset.kind ?? 'done · logged';
-            row.classList.remove('active');
-          }, 900);
-        }
-        if (btn) {
-          // the ask appears, you click, it's done — same one-way rhythm as
-          // the live site's approval visuals
-          btn.classList.remove('idle');
-          btn.textContent = approveTxt;
-          setTimeout(() => btn.classList.add('fv-clicked'), 900);
-          setTimeout(() => {
-            btn.classList.remove('fv-clicked');
-            btn.classList.add('fv-done');
-            btn.textContent = approvedTxt;
-            row.classList.remove('active');
-          }, 1250);
-        }
-        step++;
-      } else if (step < rows.length + 2) {
-        step++; // hold the finished day
-      } else {
-        reset();
-        step = 0;
-      }
-    }, 1900);
+      if (isShowing()) start();
+      else if (finished) reset();
+    }, 400);
   })();
 </script>

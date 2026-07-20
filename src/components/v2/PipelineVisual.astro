@@ -6,8 +6,8 @@
  * starts. Layout-stable: fixed-height rows, status swaps inside a reserved
  * slot. setInterval-driven; resting markup is the completed state.
  */
-import { vc } from '../../content/v2';
-const v = vc.prospectingVisual;
+import { getV2Copy } from '../../content/v2';
+const v = getV2Copy(Astro.currentLocale).prospectingVisual;
 ---
 
 <div class="vcp" aria-hidden="true" id="vcp" data-foot-idle={v.footIdle} data-foot-done={v.footDone}>
@@ -142,13 +142,15 @@ const v = vc.prospectingVisual;
     0%, 100% { opacity: 1; }
     50% { opacity: 0.35; }
   }
-  .vcp-status.waiting {
-    color: var(--v-ink-subtle);
-    animation: none;
+  /* the pipeline is a PLAN — the whole list shows upfront; the animation
+     works through it. Upcoming steps recede (whole-row dim), the current
+     step carries the wash, done steps sit at full ink. Opacity only, so
+     the card never changes height. */
+  .vcp-row {
+    transition: opacity 550ms cubic-bezier(0.16, 1, 0.3, 1), background 400ms ease;
   }
-  /* rows not yet reached recede, without moving */
-  .vcp-row.pending .vcp-text {
-    opacity: 0.35;
+  .vcp-row.pending {
+    opacity: 0.4;
   }
   .vcp-foot {
     margin-top: 12px;
@@ -177,8 +179,9 @@ const v = vc.prospectingVisual;
 </style>
 
 <script>
-  // one prospect run: stages go pending → working → done in sequence; footer
-  // flips to "pitch ready", holds, then the next run starts fresh.
+  // Stages APPEAR one by one as the pipeline works them (working → ✓ done),
+  // the footer flips to "pitch ready" — then the run HOLDS. Plays once each
+  // time the page becomes visible; re-arms after you leave the section.
   (() => {
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const root = document.getElementById('vcp');
@@ -189,51 +192,72 @@ const v = vc.prospectingVisual;
     const footDone = root.dataset.footDone ?? '';
     const statusOf = (row: HTMLElement) => row.querySelector<HTMLElement>('.vcp-status')!;
 
+    let step = 0;
+    let timer: ReturnType<typeof setInterval> | null = null;
+    let finished = false;
+
     const reset = () => {
       rows.forEach((r) => {
         r.classList.add('pending');
         r.classList.remove('active');
         const s = statusOf(r);
-        s.classList.add('waiting');
         s.classList.remove('working');
-        s.textContent = '·';
+        s.textContent = '';
       });
       if (foot) {
         foot.classList.remove('ready');
         foot.textContent = footIdle;
       }
+      step = 0;
+      finished = false;
     };
 
-    let step = 0;
+    const start = () => {
+      if (timer || finished) return;
+      const tick = () => {
+        if (step < rows.length) {
+          const row = rows[step];
+          const s = statusOf(row);
+          row.classList.remove('pending');
+          row.classList.add('active');
+          s.classList.add('working');
+          s.textContent = s.dataset.working ?? 'working';
+          setTimeout(() => {
+            row.classList.remove('active');
+            s.classList.remove('working');
+            s.textContent = s.dataset.done ?? '✓ done';
+          }, 1000);
+          step++;
+          if (step === rows.length && foot) {
+            setTimeout(() => {
+              foot.classList.add('ready');
+              foot.textContent = footDone;
+            }, 1200);
+          }
+        } else {
+          // pitch ready — hold until the section is left and re-entered
+          if (timer) clearInterval(timer);
+          timer = null;
+          finished = true;
+        }
+      };
+      tick(); // first stage appears immediately — no empty-card beat
+      timer = setInterval(tick, 1500);
+    };
+
+    // visibility watcher (setInterval — webview-safe); the vpin driver keeps
+    // pages mounted, so check the page's computed visibility, not just IO
+    const pageEl = (root.closest('.vpin-page') ?? root) as HTMLElement;
+    const isShowing = () => {
+      const r = pageEl.getBoundingClientRect();
+      if (r.bottom <= 0 || r.top >= innerHeight || r.width === 0) return false;
+      const cs = getComputedStyle(pageEl);
+      return cs.visibility !== 'hidden' && parseFloat(cs.opacity || '1') > 0.6;
+    };
     reset();
     setInterval(() => {
-      if (step < rows.length) {
-        const row = rows[step];
-        const s = statusOf(row);
-        row.classList.remove('pending');
-        row.classList.add('active');
-        s.classList.remove('waiting');
-        s.classList.add('working');
-        s.textContent = s.dataset.working ?? 'working';
-        setTimeout(() => {
-          row.classList.remove('active');
-          s.classList.remove('working');
-          s.textContent = s.dataset.done ?? '✓ done';
-        }, 1150);
-        step++;
-        if (step === rows.length && foot) {
-          setTimeout(() => {
-            foot.classList.add('ready');
-            foot.textContent = footDone;
-          }, 1300);
-        }
-      } else if (step < rows.length + 2) {
-        step++; // hold the finished pitch for two beats
-      } else {
-        // then a fresh prospect run
-        reset();
-        step = 0;
-      }
-    }, 1700);
+      if (isShowing()) start();
+      else if (finished) reset(); // left the section after a full run — re-arm
+    }, 400);
   })();
 </script>
