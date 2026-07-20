@@ -1,0 +1,239 @@
+---
+/**
+ * Prospecting visual — one prospect moving through the pitch pipeline.
+ * Stages activate in sequence (working → done); the footer flips to
+ * "pitch ready" when the run completes, holds, then a fresh prospect run
+ * starts. Layout-stable: fixed-height rows, status swaps inside a reserved
+ * slot. setInterval-driven; resting markup is the completed state.
+ */
+import { vc } from '../../content/v2';
+const v = vc.prospectingVisual;
+---
+
+<div class="vcp" aria-hidden="true" id="vcp" data-foot-idle={v.footIdle} data-foot-done={v.footDone}>
+  <div class="vcp-head">
+    <div>
+      <div class="vcp-eyebrow">{v.eyebrow}</div>
+      <div class="vcp-name">{v.name}</div>
+      <div class="vcp-sub">{v.sub}</div>
+    </div>
+    <span class="vcp-live"><span class="dot v-live-dot"></span> pipeline</span>
+  </div>
+  <div class="vcp-divider"></div>
+  {v.stages.map((s) => (
+    <div class="vcp-row">
+      <span class="vcp-tool">{s.tool}</span>
+      <span class="vcp-text">{s.text}</span>
+      <span class="vcp-status" data-working={v.working} data-done={v.done}>{v.done}</span>
+    </div>
+  ))}
+  <div class="vcp-foot">{v.footDone}</div>
+</div>
+
+<style>
+  .vcp {
+    border-radius: 14px;
+    background: var(--v-card);
+    border: 1px solid var(--v-border-subtle);
+    box-shadow:
+      0 25px 50px -12px rgba(0, 0, 0, 0.1),
+      0 8px 16px -4px rgba(0, 0, 0, 0.05);
+    padding: 22px 24px;
+  }
+  .vcp-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .vcp-eyebrow {
+    font-family: 'DM Mono', ui-monospace, monospace;
+    font-size: 9px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--v-ink-subtle);
+    margin-bottom: 7px;
+  }
+  .vcp-name {
+    font-size: var(--text-h3);
+    letter-spacing: -0.015em;
+    color: var(--v-ink-title);
+  }
+  .vcp-sub {
+    font-size: var(--text-xs);
+    color: var(--v-ink-hint);
+    margin-top: 2px;
+  }
+  .vcp-live {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'DM Mono', ui-monospace, monospace;
+    font-size: 9px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--v-ink-subtle);
+    margin-top: 3px;
+  }
+  .vcp-live .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #4caf6d;
+  }
+  .vcp-divider {
+    height: 1px;
+    background: var(--v-hairline);
+    margin: 14px 0 4px;
+  }
+  .vcp-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 2px;
+    border-bottom: 1px solid var(--v-hairline);
+    border-radius: 6px;
+    transition: background 400ms ease;
+  }
+  .vcp-row:last-of-type {
+    border-bottom: none;
+  }
+  .vcp-row.active {
+    background: var(--v-brand-wash);
+  }
+  .vcp-tool {
+    flex: none;
+    width: 84px;
+    font-family: 'DM Mono', ui-monospace, monospace;
+    font-size: 9px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 3px 7px;
+    border-radius: var(--radius-sm);
+    background: var(--v-brand-wash);
+    color: var(--v-brand);
+    text-align: center;
+  }
+  .vcp-text {
+    flex: 1;
+    min-width: 0;
+    font-size: var(--text-sm);
+    color: var(--v-ink-title);
+    line-height: 1.4;
+    transition: opacity 400ms ease;
+  }
+  .vcp-status {
+    flex: none;
+    width: 64px;
+    text-align: right;
+    font-family: 'DM Mono', ui-monospace, monospace;
+    font-size: 9px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #2e7d4f;
+    transition: color 300ms ease;
+  }
+  .vcp-status.working {
+    color: var(--v-brand);
+    animation: vcp-working 0.9s ease-in-out infinite;
+  }
+  @keyframes vcp-working {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.35; }
+  }
+  .vcp-status.waiting {
+    color: var(--v-ink-subtle);
+    animation: none;
+  }
+  /* rows not yet reached recede, without moving */
+  .vcp-row.pending .vcp-text {
+    opacity: 0.35;
+  }
+  .vcp-foot {
+    margin-top: 12px;
+    font-family: 'DM Mono', ui-monospace, monospace;
+    font-size: 9px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--v-ink-subtle);
+    transition: color 300ms ease;
+  }
+  .vcp-foot.ready {
+    color: #2e7d4f;
+  }
+
+  @media (max-width: 640px) {
+    .vcp {
+      padding: 18px 16px;
+    }
+    .vcp-tool {
+      width: 72px;
+    }
+    .vcp-status {
+      width: 56px;
+    }
+  }
+</style>
+
+<script>
+  // one prospect run: stages go pending → working → done in sequence; footer
+  // flips to "pitch ready", holds, then the next run starts fresh.
+  (() => {
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const root = document.getElementById('vcp');
+    if (!root) return;
+    const rows = Array.from(root.querySelectorAll<HTMLElement>('.vcp-row'));
+    const foot = root.querySelector<HTMLElement>('.vcp-foot');
+    const footIdle = root.dataset.footIdle ?? '';
+    const footDone = root.dataset.footDone ?? '';
+    const statusOf = (row: HTMLElement) => row.querySelector<HTMLElement>('.vcp-status')!;
+
+    const reset = () => {
+      rows.forEach((r) => {
+        r.classList.add('pending');
+        r.classList.remove('active');
+        const s = statusOf(r);
+        s.classList.add('waiting');
+        s.classList.remove('working');
+        s.textContent = '·';
+      });
+      if (foot) {
+        foot.classList.remove('ready');
+        foot.textContent = footIdle;
+      }
+    };
+
+    let step = 0;
+    reset();
+    setInterval(() => {
+      if (step < rows.length) {
+        const row = rows[step];
+        const s = statusOf(row);
+        row.classList.remove('pending');
+        row.classList.add('active');
+        s.classList.remove('waiting');
+        s.classList.add('working');
+        s.textContent = s.dataset.working ?? 'working';
+        setTimeout(() => {
+          row.classList.remove('active');
+          s.classList.remove('working');
+          s.textContent = s.dataset.done ?? '✓ done';
+        }, 1150);
+        step++;
+        if (step === rows.length && foot) {
+          setTimeout(() => {
+            foot.classList.add('ready');
+            foot.textContent = footDone;
+          }, 1300);
+        }
+      } else if (step < rows.length + 2) {
+        step++; // hold the finished pitch for two beats
+      } else {
+        // then a fresh prospect run
+        reset();
+        step = 0;
+      }
+    }, 1700);
+  })();
+</script>

@@ -1,0 +1,197 @@
+---
+/**
+ * Onboarding visual — the 12–18 month roadmap writes itself from meeting
+ * notes while the document checklist ticks off beside it. Layout-stable:
+ * roadmap rows brighten in place (no growth), checklist marks swap glyphs
+ * inside a fixed circle. setInterval-driven; resting markup is complete.
+ */
+import { vc } from '../../content/v2';
+const v = vc.onboardingVisual;
+---
+
+<div class="vco" aria-hidden="true" id="vco">
+  <div class="vco-col vco-roadmap">
+    <div class="vco-label">{v.roadmapLabel}</div>
+    {v.roadmap.map((r) => (
+      <div class="vco-row">
+        <span class="vco-when">{r.when}</span>
+        <span class="vco-text">{r.text}</span>
+      </div>
+    ))}
+    <div class="vco-foot">{v.sourceNote}</div>
+  </div>
+  <div class="vco-col">
+    <div class="vco-label">{v.checklistLabel}</div>
+    {v.checklist.map((c) => (
+      <div class="vco-check">
+        <span class="vco-mark">✓</span>
+        <span class="vco-check-text">{c}</span>
+      </div>
+    ))}
+  </div>
+</div>
+
+<style>
+  .vco {
+    border-radius: 14px;
+    background: var(--v-card);
+    border: 1px solid var(--v-border-subtle);
+    box-shadow:
+      0 25px 50px -12px rgba(0, 0, 0, 0.1),
+      0 8px 16px -4px rgba(0, 0, 0, 0.05);
+    padding: 22px 24px;
+    display: grid;
+    grid-template-columns: 1.35fr 1fr;
+    gap: 20px;
+    align-items: start;
+  }
+  .vco-roadmap {
+    border-right: 1px solid var(--v-hairline);
+    padding-right: 20px;
+  }
+  .vco-label {
+    font-family: 'DM Mono', ui-monospace, monospace;
+    font-size: 9px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--v-ink-subtle);
+    margin-bottom: 10px;
+  }
+  .vco-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 2px;
+    border-bottom: 1px solid var(--v-hairline);
+    border-radius: 6px;
+    transition: background 400ms ease;
+  }
+  .vco-row:last-of-type {
+    border-bottom: none;
+  }
+  .vco-when {
+    flex: none;
+    width: 70px;
+    font-family: 'DM Mono', ui-monospace, monospace;
+    font-size: 9px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 3px 7px;
+    border-radius: var(--radius-sm);
+    background: var(--v-brand-wash);
+    color: var(--v-brand);
+    text-align: center;
+    margin-top: 1px;
+  }
+  .vco-text {
+    font-size: var(--text-xs);
+    color: var(--v-ink-title);
+    line-height: 1.5;
+    transition: opacity 450ms ease;
+  }
+  .vco-row.unwritten .vco-text {
+    opacity: 0.3;
+  }
+  .vco-row.landing {
+    background: var(--v-brand-wash);
+  }
+  .vco-foot {
+    margin-top: 12px;
+    font-family: 'DM Mono', ui-monospace, monospace;
+    font-size: 9px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--v-ink-subtle);
+  }
+
+  .vco-check {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 2px;
+    border-bottom: 1px solid var(--v-hairline);
+  }
+  .vco-check:last-of-type {
+    border-bottom: none;
+  }
+  .vco-mark {
+    flex: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    background: #e9f6ee;
+    color: #2e7d4f;
+    transition: background 350ms ease, color 350ms ease;
+  }
+  .vco-check.open .vco-mark {
+    background: var(--v-fill);
+    color: transparent;
+    box-shadow: inset 0 0 0 1px var(--v-border-moderate);
+  }
+  .vco-check-text {
+    font-size: var(--text-xs);
+    color: var(--v-ink-title);
+    transition: color 350ms ease;
+  }
+  .vco-check.open .vco-check-text {
+    color: var(--v-ink-body);
+  }
+
+  @media (max-width: 640px) {
+    .vco {
+      grid-template-columns: 1fr;
+      padding: 18px 16px;
+    }
+    .vco-roadmap {
+      border-right: none;
+      padding-right: 0;
+      border-bottom: 1px solid var(--v-hairline);
+      padding-bottom: 14px;
+    }
+  }
+</style>
+
+<script>
+  // roadmap entries "write in" one by one; each written entry ticks the next
+  // checklist item — planning and paperwork advance together. Loops.
+  (() => {
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const root = document.getElementById('vco');
+    if (!root) return;
+    const rows = Array.from(root.querySelectorAll<HTMLElement>('.vco-row'));
+    const checks = Array.from(root.querySelectorAll<HTMLElement>('.vco-check'));
+
+    const reset = () => {
+      rows.forEach((r) => {
+        r.classList.add('unwritten');
+        r.classList.remove('landing');
+      });
+      checks.forEach((c) => c.classList.add('open'));
+    };
+
+    let step = 0;
+    reset();
+    setInterval(() => {
+      const n = Math.max(rows.length, checks.length);
+      if (step < n) {
+        const row = rows[step];
+        if (row) {
+          row.classList.remove('unwritten');
+          row.classList.add('landing');
+          setTimeout(() => row.classList.remove('landing'), 900);
+        }
+        checks[step]?.classList.remove('open');
+        step++;
+      } else if (step < n + 2) {
+        step++; // hold the completed state for two beats
+      } else {
+        reset();
+        step = 0;
+      }
+    }, 1600);
+  })();
+</script>

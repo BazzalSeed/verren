@@ -1,0 +1,67 @@
+---
+/**
+ * V3Problem — /v3's fork of the live Problem section: identical pinned
+ * three-page layout (big stat left, lead + body right), but the pages are
+ * the lifecycle arc that maps 1:1 onto the flows section — expensive to
+ * win → slow to start → relentless to keep. The live Problem.astro is
+ * untouched.
+ */
+import { v3 } from '../../content/v3';
+const t = { problem: v3.problem };
+const pages = t.problem.pages;
+---
+
+<section id="problem" class="pt-24 md:pt-32">
+  <div class="vpin vpin--slim" data-vpin>
+    <div class="vpin-sticky">
+      <div class="vpin-head">
+        <div class="v-container md:border-t md:border-hairline md:pt-4">
+          <div class="flex items-center justify-between">
+            <span class="v-chip">{t.problem.chip}</span>
+            <div class="vpin-index" aria-hidden="true">
+              {pages.map((p) => <span class="vpin-num">{p.num}</span>)}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {pages.map((p, i) => (
+        <div class="vpin-page">
+          <div class="v-container w-full">
+            <div class="v-grid items-start gap-y-10">
+              <div class="col-span-4 md:col-span-4 md:pt-2">
+                <div class:list={['v-item', i === 0 && 'reveal']} data-reveal-delay="160">
+                  <div class="stat-big">{p.stat}</div>
+                  <p class="mt-3 max-w-[310px] text-sm text-ink-body">{p.statLabel}</p>
+                  <p class="mt-3 text-xs text-ink-hint">{p.source}</p>
+                </div>
+              </div>
+              <div class="col-span-4 md:col-span-6 md:col-start-5">
+                <div class="pb-num">{p.num}</div>
+                <h2 class:list={['mt-3 max-w-[600px] text-h1 text-ink-title', i === 0 && 'reveal']}>{p.lead}</h2>
+                <p class:list={['mt-4 max-w-[540px] text-h4 text-ink-body', i === 0 && 'reveal']} data-reveal-delay="80">{p.body}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .pb-num {
+    font-family: 'DM Mono', ui-monospace, monospace;
+    font-size: var(--text-xs);
+    color: var(--v-ink-subtle);
+  }
+  /* the one deliberate break of the 28px ceiling: the stat is data, not copy */
+  .stat-big {
+    font-size: clamp(44px, 5.5vw, 76px);
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    font-weight: 400;
+    color: var(--v-ink-title);
+    white-space: nowrap;
+  }
+</style>

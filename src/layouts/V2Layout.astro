@@ -1,0 +1,336 @@
+---
+/**
+ * V2Layout — layout for the /v2 concept variant ONLY. A faithful fork of
+ * the live Layout.astro (same header, wash, reveal/vpin/tilt drivers) so
+ * live components render identically here, minus i18n (no locale redirect,
+ * no zh toggle) and with noindex. The live site's Layout.astro is untouched.
+ */
+import '../styles/global.css';
+import { getCopy } from '../i18n/copy';
+import { vc } from '../content/v2';
+
+interface Props {
+  /* per-variant head copy — /claude-team passes its own; defaults to /claude */
+  meta?: { title: string; description: string };
+}
+const t = getCopy('en');
+const meta = Astro.props.meta ?? vc.meta;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{meta.title}</title>
+    <meta name="description" content={meta.description} />
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="theme-color" content="#F6F4EF" />
+
+    <link rel="preconnect" href="https://api.fontshare.com" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    {/* One typeface, one weight — General Sans 400. DM Mono for chips/labels. */}
+    <link href="https://api.fontshare.com/v2/css?f[]=general-sans@400&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+    {/* Arm animation start-states ONLY when JS is live (webview-safe). */}
+    <script is:inline>
+      document.documentElement.classList.add('js-anim');
+    </script>
+  </head>
+  <body>
+    {/* hero atmosphere — fixed gradient wash; fades out as you scroll (scrubbed) */}
+    <div class="v-wash" id="v-wash" aria-hidden="true"></div>
+
+    <header class="v-header" data-header>
+      <div class="v-container flex h-[60px] items-center justify-between gap-6">
+        <a class="v-wordmark no-underline" href="#top">Verren</a>
+        <nav class="hidden items-center gap-1 md:flex">
+          {t.nav.links.map((l) => <a class="v-navlink" href={l.href}>{l.label}</a>)}
+        </nav>
+        <div class="flex items-center gap-3">
+          <a class="v-btn v-btn--primary hidden sm:inline-flex" href="#waitlist">{t.nav.cta} <span class="arrow">→</span></a>
+          <button id="nav-toggle" type="button" aria-label="Menu" aria-expanded="false" class="v-burger md:hidden">
+            <span></span><span></span><span></span>
+          </button>
+        </div>
+      </div>
+      <div id="nav-menu" class="v-menu hidden md:hidden">
+        <div class="v-container flex flex-col gap-1 pb-4">
+          {t.nav.links.map((l) => <a class="v-navlink" href={l.href} data-nav-link>{l.label}</a>)}
+          <a class="v-btn v-btn--primary mt-2 w-max" href="#waitlist" data-nav-link>{t.nav.cta} <span class="arrow">→</span></a>
+        </div>
+      </div>
+    </header>
+
+    <main id="top">
+      <slot />
+    </main>
+
+    <footer class="border-t border-hairline py-10">
+      <div class="v-container flex flex-col gap-1.5">
+        <div class="text-sm text-ink-sub">{t.footer.line1}</div>
+        <div class="text-xs text-ink-subtle">{t.footer.line2} · concept /claude — local only</div>
+      </div>
+    </footer>
+
+    <style>
+      .v-wash {
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        background: linear-gradient(to bottom, var(--v-wash-top), var(--v-wash-bottom) 62%, var(--v-bg) 92%);
+        pointer-events: none;
+      }
+      /* merged into the page at the very top; translucent blur bar once scrolled */
+      .v-header {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        border-bottom: 1px solid transparent;
+        transition: background 250ms ease, border-color 250ms ease;
+      }
+      .v-header[data-scrolled],
+      .v-header.menu-open {
+        background: color-mix(in srgb, var(--v-bg) 78%, transparent);
+        -webkit-backdrop-filter: blur(14px);
+        backdrop-filter: blur(14px);
+        border-bottom-color: var(--v-hairline);
+      }
+      .v-burger {
+        /* unlayered component CSS outranks Tailwind's md:hidden utility, so
+           the desktop hide must live here too */
+        display: inline-flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 5px;
+        width: 28px;
+        height: 28px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: var(--v-ink-title);
+      }
+      .v-burger span {
+        display: block;
+        height: 1.5px;
+        width: 20px;
+        background: currentColor;
+        border-radius: 1px;
+      }
+      @media (min-width: 768px) {
+        .v-burger {
+          display: none;
+        }
+      }
+      .v-wordmark {
+        font-family: var(--font-hand);
+        font-size: 24px;
+        font-weight: 600;
+        line-height: 1;
+        color: var(--v-ink-title);
+        letter-spacing: 0.01em;
+        transform: rotate(-1.5deg);
+        display: inline-block;
+        padding-bottom: 2px; /* optical centering for Caveat's baseline */
+      }
+      .v-navlink {
+        text-decoration: none;
+        font-size: var(--text-sm);
+        color: var(--v-ink-sub);
+        padding: 5px 10px;
+        border-radius: var(--radius-md);
+        transition: color 200ms, background 200ms;
+      }
+      .v-navlink:hover {
+        color: var(--v-ink-title);
+        background: var(--v-fill);
+      }
+    </style>
+
+    <script>
+      // ---- nav: merged at top, translucent bar once scrolled; mobile menu ----
+      const header = document.querySelector<HTMLElement>('[data-header]');
+      if (header) {
+        const syncHeader = () => header.toggleAttribute('data-scrolled', window.scrollY > 4);
+        syncHeader();
+        addEventListener('scroll', syncHeader, { passive: true });
+        const toggle = document.getElementById('nav-toggle');
+        const menu = document.getElementById('nav-menu');
+        const closeMenu = () => {
+          menu?.classList.add('hidden');
+          header.classList.remove('menu-open');
+          toggle?.setAttribute('aria-expanded', 'false');
+        };
+        toggle?.addEventListener('click', () => {
+          const open = menu?.classList.toggle('hidden') === false;
+          header.classList.toggle('menu-open', open);
+          toggle.setAttribute('aria-expanded', String(open));
+        });
+        document.querySelectorAll('[data-nav-link]').forEach((a) => a.addEventListener('click', closeMenu));
+      }
+
+      // ---- Pattern 1: one-shot reveals (IntersectionObserver → CSS transition) ----
+      let ioFired = false;
+      const revealIO = new IntersectionObserver(
+        (entries) => {
+          for (const e of entries) {
+            if (!e.isIntersecting) continue;
+            ioFired = true;
+            const el = e.target as HTMLElement;
+            const d = el.dataset.revealDelay;
+            if (d) el.style.setProperty('--reveal-delay', d + 'ms');
+            el.classList.add('in');
+            revealIO.unobserve(el);
+          }
+        },
+        { threshold: 0, rootMargin: '0px 0px -12% 0px' }
+      );
+      document.querySelectorAll('.reveal').forEach((el) => revealIO.observe(el));
+
+      // Webview safety net: ONLY if IO never fired, snap everything visible.
+      setTimeout(() => {
+        if (ioFired) return;
+        document.querySelectorAll('.js-anim .reveal:not(.in)').forEach((el) => el.classList.add('in', 'in--snap'));
+      }, 600);
+
+      // ---- Pinned vertical page scrub ([data-vpin]) ----
+      const vpins = Array.from(document.querySelectorAll<HTMLElement>('[data-vpin]')).map((wrap) => {
+        const pages = Array.from(wrap.querySelectorAll<HTMLElement>('.vpin-page'));
+        const nums = Array.from(wrap.querySelectorAll<HTMLElement>('.vpin-num'));
+        wrap.style.setProperty('--pages', String(pages.length));
+        nums.forEach((n, i) => {
+          n.addEventListener('click', () => {
+            const r = wrap.getBoundingClientRect();
+            const scrollable = r.height - window.innerHeight;
+            const target = window.scrollY + r.top + (i / Math.max(1, pages.length - 1)) * scrollable;
+            window.scrollTo({ top: target, behavior: 'smooth' });
+          });
+        });
+        return { wrap, pages, nums };
+      });
+      const mqDesktop = matchMedia('(min-width: 900px)');
+      const mqReduced = matchMedia('(prefers-reduced-motion: reduce)');
+      function updateVpins() {
+        for (const { wrap, pages, nums } of vpins) {
+          if (!mqDesktop.matches || mqReduced.matches) {
+            for (const pg of pages) {
+              pg.style.opacity = '';
+              pg.style.transform = '';
+              pg.style.pointerEvents = '';
+              pg.style.visibility = '';
+            }
+            continue;
+          }
+          const r = wrap.getBoundingClientRect();
+          const scrollable = r.height - window.innerHeight;
+          const p = Math.min(1, Math.max(0, -r.top / scrollable));
+          const t = p * (pages.length - 1);
+          pages.forEach((pg, i) => {
+            const off = Math.max(-1, Math.min(1, t - i));
+            const a = Math.abs(off);
+            const raw = Math.min(1, Math.max(0, (0.65 - a) / 0.4));
+            const vis = raw * raw * (3 - 2 * raw); // smoothstep
+            pg.style.opacity = vis.toFixed(3);
+            pg.style.transform = `translate3d(0, ${(-off * window.innerHeight * 0.5).toFixed(1)}px, 0)`;
+            pg.style.pointerEvents = vis > 0.5 ? 'auto' : 'none';
+            pg.style.visibility = vis === 0 ? 'hidden' : '';
+          });
+          const active = Math.min(pages.length - 1, Math.round(t));
+          nums.forEach((n, i) => n.classList.toggle('on', i === active));
+        }
+      }
+      if (vpins.length) {
+        let vpinTicking = false;
+        const onVpinScroll = () => {
+          if (vpinTicking) return;
+          vpinTicking = true;
+          requestAnimationFrame(() => {
+            updateVpins();
+            vpinTicking = false;
+          });
+        };
+        addEventListener('scroll', onVpinScroll, { passive: true });
+        addEventListener('resize', onVpinScroll, { passive: true });
+        updateVpins();
+      }
+
+      // ---- Pointer tilt — .v-tilt surfaces rotate toward the cursor ----
+      (() => {
+        if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        const SEL = '.v-tilt';
+        const MAX = 4, SCALE = 1.015, PERSP = 1000;
+        let raf = 0;
+        let queued: { tile: HTMLElement; x: number; y: number } | null = null;
+        let active: HTMLElement | null = null;
+        const paint = () => {
+          raf = 0;
+          if (!queued) return;
+          const { tile, x, y } = queued;
+          const r = tile.getBoundingClientRect();
+          if (!r.width || !r.height) return;
+          const px = (x - r.left) / r.width - 0.5;
+          const py = (y - r.top) / r.height - 0.5;
+          tile.style.transform =
+            `perspective(${PERSP}px) rotateX(${(-py * MAX * 2).toFixed(2)}deg)` +
+            ` rotateY(${(px * MAX * 2).toFixed(2)}deg) scale(${SCALE})`;
+          tile.style.setProperty('--tilt-mx', `${((px + 0.5) * 100).toFixed(1)}%`);
+          tile.style.setProperty('--tilt-my', `${((py + 0.5) * 100).toFixed(1)}%`);
+        };
+        const resetTile = (tile: HTMLElement) => {
+          tile.classList.remove('tilting');
+          tile.style.transform = '';
+          tile.style.willChange = '';
+        };
+        document.addEventListener(
+          'pointermove',
+          (e) => {
+            if (e.pointerType && e.pointerType !== 'mouse') {
+              if (active) { resetTile(active); active = null; }
+              return;
+            }
+            const tile = (e.target as Element | null)?.closest?.(SEL) as HTMLElement | null;
+            if (active && active !== tile) { resetTile(active); active = null; }
+            if (!tile) return;
+            if (active !== tile) {
+              active = tile;
+              tile.classList.add('tilting');
+              tile.style.willChange = 'transform';
+            }
+            queued = { tile, x: e.clientX, y: e.clientY };
+            if (!raf) raf = requestAnimationFrame(paint);
+          },
+          { passive: true }
+        );
+        const drop = () => { if (active) { resetTile(active); active = null; } };
+        document.addEventListener('pointerleave', drop);
+        addEventListener('scroll', drop, { passive: true });
+      })();
+
+      // ---- Pattern 2: scroll-scrub — hero wash fades across the first viewport ----
+      const wash = document.getElementById('v-wash');
+      const reduced = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (wash && !reduced) {
+        let ticking = false;
+        const update = () => {
+          const p = Math.min(1, Math.max(0, window.scrollY / (window.innerHeight * 1.2)));
+          wash.style.opacity = String(1 - p);
+        };
+        const onScroll = () => {
+          if (ticking) return;
+          ticking = true;
+          requestAnimationFrame(() => {
+            update();
+            ticking = false;
+          });
+        };
+        addEventListener('scroll', onScroll, { passive: true });
+        addEventListener('resize', onScroll, { passive: true });
+        update();
+      }
+    </script>
+  </body>
+</html>

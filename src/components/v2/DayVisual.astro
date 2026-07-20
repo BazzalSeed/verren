@@ -1,0 +1,230 @@
+---
+/**
+ * Ongoing visual — one day across the book. Routine rows complete on their
+ * own; the two consequential rows (trading, money movement) wait on an
+ * Approve button that gets "clicked" — approval-gating shown, not claimed.
+ * Layout-stable: statuses swap inside fixed-width slots; approve buttons
+ * change class/text only. setInterval-driven; resting markup shows the
+ * completed day.
+ */
+import { vc } from '../../content/v2';
+const v = vc.ongoingVisual;
+---
+
+<div class="vcd" aria-hidden="true" id="vcd" data-approve={v.approve} data-approved={v.approved}>
+  <div class="vcd-label">
+    {v.label}
+    <span class="vcd-live"><span class="dot v-live-dot"></span> live</span>
+  </div>
+  {v.rows.map((r) => (
+    <div class="vcd-row" data-kind={r.status}>
+      <span class="vcd-tool">{r.tool}</span>
+      <span class="vcd-text">{r.text}</span>
+      {r.status === 'approval' ? (
+        <span class="vcd-approve">{v.approved}</span>
+      ) : (
+        <span class="vcd-status">{r.status}</span>
+      )}
+    </div>
+  ))}
+  <div class="vcd-foot">{v.foot}</div>
+</div>
+
+<style>
+  .vcd {
+    border-radius: 14px;
+    background: var(--v-card);
+    border: 1px solid var(--v-border-subtle);
+    box-shadow:
+      0 25px 50px -12px rgba(0, 0, 0, 0.1),
+      0 8px 16px -4px rgba(0, 0, 0, 0.05);
+    padding: 22px 24px;
+  }
+  .vcd-label {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    font-family: 'DM Mono', ui-monospace, monospace;
+    font-size: 9px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--v-ink-subtle);
+    margin-bottom: 8px;
+  }
+  .vcd-live {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    letter-spacing: 0.06em;
+  }
+  .vcd-live .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #4caf6d;
+  }
+  .vcd-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 2px;
+    border-bottom: 1px solid var(--v-hairline);
+    border-radius: 6px;
+    transition: background 400ms ease;
+  }
+  .vcd-row:last-of-type {
+    border-bottom: none;
+  }
+  .vcd-row.active {
+    background: var(--v-fill);
+  }
+  .vcd-tool {
+    flex: none;
+    width: 84px;
+    font-family: 'DM Mono', ui-monospace, monospace;
+    font-size: 9px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 3px 7px;
+    border-radius: var(--radius-sm);
+    background: var(--v-brand-wash);
+    color: var(--v-brand);
+    text-align: center;
+  }
+  .vcd-text {
+    flex: 1;
+    min-width: 0;
+    font-size: var(--text-sm);
+    color: var(--v-ink-title);
+    line-height: 1.4;
+    transition: opacity 400ms ease;
+  }
+  .vcd-row.pending .vcd-text {
+    opacity: 0.35;
+  }
+  .vcd-status {
+    flex: none;
+    width: 92px;
+    text-align: right;
+    font-family: 'DM Mono', ui-monospace, monospace;
+    font-size: 9px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #2e7d4f;
+    transition: color 300ms ease;
+  }
+  .vcd-status.waiting {
+    color: var(--v-ink-subtle);
+  }
+  .vcd-approve {
+    flex: none;
+    width: 92px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    padding: 4px 0;
+    border-radius: var(--radius-md);
+    background: #e9f6ee;
+    color: #2e7d4f;
+    border: 1px solid rgba(46, 125, 79, 0.18);
+    transition: transform 200ms ease, background 300ms ease, color 300ms ease, opacity 300ms ease;
+  }
+  .vcd-approve.idle {
+    background: var(--v-fill);
+    color: var(--v-ink-subtle);
+    border-color: var(--v-border-subtle);
+  }
+  .vcd-foot {
+    margin-top: 12px;
+    font-family: 'DM Mono', ui-monospace, monospace;
+    font-size: 9px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--v-ink-subtle);
+  }
+
+  @media (max-width: 640px) {
+    .vcd {
+      padding: 18px 16px;
+    }
+    .vcd-tool {
+      width: 72px;
+    }
+    .vcd-status,
+    .vcd-approve {
+      width: 84px;
+    }
+  }
+</style>
+
+<script>
+  // the day plays through: routine rows complete on their own; approval rows
+  // present the button, get "clicked" (fv-clicked/fv-done from global.css),
+  // then the day holds and restarts.
+  (() => {
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const root = document.getElementById('vcd');
+    if (!root) return;
+    const rows = Array.from(root.querySelectorAll<HTMLElement>('.vcd-row'));
+    const approveTxt = root.dataset.approve ?? '✓ Approve';
+    const approvedTxt = root.dataset.approved ?? '✓ Approved';
+
+    const reset = () => {
+      rows.forEach((r) => {
+        r.classList.add('pending');
+        r.classList.remove('active');
+        const st = r.querySelector<HTMLElement>('.vcd-status');
+        if (st) {
+          st.classList.add('waiting');
+          st.textContent = '·';
+        }
+        const btn = r.querySelector<HTMLElement>('.vcd-approve');
+        if (btn) {
+          btn.classList.add('idle');
+          btn.classList.remove('fv-clicked', 'fv-done');
+          btn.textContent = '·';
+        }
+      });
+    };
+
+    let step = 0;
+    reset();
+    setInterval(() => {
+      if (step < rows.length) {
+        const row = rows[step];
+        row.classList.remove('pending');
+        row.classList.add('active');
+        const st = row.querySelector<HTMLElement>('.vcd-status');
+        const btn = row.querySelector<HTMLElement>('.vcd-approve');
+        if (st) {
+          setTimeout(() => {
+            st.classList.remove('waiting');
+            st.textContent = row.dataset.kind ?? 'done · logged';
+            row.classList.remove('active');
+          }, 900);
+        }
+        if (btn) {
+          // the ask appears, you click, it's done — same one-way rhythm as
+          // the live site's approval visuals
+          btn.classList.remove('idle');
+          btn.textContent = approveTxt;
+          setTimeout(() => btn.classList.add('fv-clicked'), 900);
+          setTimeout(() => {
+            btn.classList.remove('fv-clicked');
+            btn.classList.add('fv-done');
+            btn.textContent = approvedTxt;
+            row.classList.remove('active');
+          }, 1250);
+        }
+        step++;
+      } else if (step < rows.length + 2) {
+        step++; // hold the finished day
+      } else {
+        reset();
+        step = 0;
+      }
+    }, 1900);
+  })();
+</script>
