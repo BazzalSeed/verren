@@ -29,6 +29,22 @@ const otherLocaleLabel = lang === 'zh' ? 'EN' : '中文';
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta name="theme-color" content="#F6F4EF" />
 
+    {/* link previews (iMessage / Slack / social) — the SAME card as the live
+        site; without og:image, scrapers grab the first big image on the page
+        (which turned out to be a founder headshot) */}
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Verren" />
+    <meta property="og:title" content={t.meta.title} />
+    <meta property="og:description" content={t.meta.ogDescription} />
+    <meta property="og:url" content={lang === 'zh' ? 'https://verren.app/zh/v2/' : 'https://verren.app/v2/'} />
+    <meta property="og:image" content="https://verren.app/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={t.meta.title} />
+    <meta name="twitter:description" content={t.meta.ogDescription} />
+    <meta name="twitter:image" content="https://verren.app/og.png" />
+
     <link rel="preconnect" href="https://api.fontshare.com" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
